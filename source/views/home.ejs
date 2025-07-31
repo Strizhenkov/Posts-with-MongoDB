@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+</head>
+<body>
+    <h1>Добро пожаловать, <%= user.username %> (id: <%= user.id %>)!</h1>
+
+    <h2>Последние посты:</h2>
+    <% posts.forEach(post => { %>
+        <div style="border: 1px solid black; padding: 10px; margin: 10px;">
+            <h3><%= post.title %></h3>
+            <p><%= post.content %></p>
+            <p><strong>Автор:</strong> <%= post.authorName %></p>
+            <p><strong>Лайков:</strong> <%= post.likeCount %></p>
+
+            <% if (user.id !== post.authorId) { %>
+                <form action="/user/subscribe" method="POST">
+                    <input type="hidden" name="authorId" value="<%= post.authorId %>">
+                    <button type="submit">Подписаться</button>
+                </form>
+            <% } %>
+
+            <form action="/user/like" method="POST" style="display:inline;">
+                <input type="hidden" name="postId" value="<%= post.id %>">
+                <button type="submit">Поставить лайк</button>
+            </form>
+        </div>
+    <% }); %>
+
+    <% if (user.role === 'author') { %>
+        <a href="/author/createPost">
+            <button type="button">Создать пост</button>
+        </a>
+    <% } %>
+
+    <% if (user.role === 'admin') { %>
+        <a href="/admin/deleteUser">
+            <button type="button">Удалить пользователя</button>
+        </a>
+    <% } %>
+</body>
+</html>

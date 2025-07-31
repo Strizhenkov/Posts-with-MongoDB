@@ -1,0 +1,3 @@
+curl -k -X POST https://localhost:3000/auth/register -H "Content-Type: application/json" -d "{\"username\":\"user123\",\"password\":\"123\"}" -c cookies.txt
+curl -k -X POST https://localhost:3000/auth/login -H "Content-Type: application/json" -d "{\"username\":\"user123\",\"password\":\"123\"}" -c cookies.txt -b cookies.txt
+npx ts-node-esm source/scripts/clearUsers.ts

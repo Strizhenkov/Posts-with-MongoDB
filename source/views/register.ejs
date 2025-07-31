@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация</title>
+</head>
+<body>
+    <h1>Регистрация</h1>
+    <form method="POST" action="/auth/register">
+        <label>Имя пользователя:</label><br>
+        <input type="text" name="username" required><br><br>
+
+        <label>Пароль:</label><br>
+        <input type="password" name="password" required><br><br>
+
+        <label>Роль:</label><br>
+        <select name="role">
+            <option value="user">Пользователь</option>
+            <option value="author">Автор</option>
+            <option value="admin">Администратор</option>
+        </select><br><br>
+
+        <button type="submit">Зарегистрироваться</button>
+    </form>
+
+    <p>Уже есть аккаунт? <a href="/auth/login">Войти</a></p>
+</body>
+</html>
