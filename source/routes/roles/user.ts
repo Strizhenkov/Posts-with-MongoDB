@@ -2,6 +2,7 @@ import {Router, Request, Response} from "express";
 import User from "../../model/entities/user.ts";
 import Post from "../../model/entities/post.ts";
 import {Types} from "mongoose";
+import {ErrorHandler} from "../../utiles/errorHandler.ts";
 
 const router = Router();
 
@@ -11,7 +12,7 @@ router.get('/home', async (req: Request, res: Response) => {
     }
 
     const currentUser = await User.findById(req.session.userId).lean();
-    if (!currentUser) return res.status(404).send("User not found");
+    if (!currentUser) return ErrorHandler.handle(res, 404, "GET /home", "User not found");
 
     const posts = await Post.find().sort({ _id: -1 }).limit(5).lean();
     const authorIds = posts.map(post => post.author);
@@ -42,11 +43,11 @@ router.post('/like', async (req: Request, res: Response) => {
     const userId = req.session.userId;
     const userObjectId = new Types.ObjectId(userId);
 
-    if (!userId) return res.status(401).send("Not authenticated");
+    if (!userId) return ErrorHandler.handle(res, 401, "POST /like", "Not authenticated");
 
     try {
         const post = await Post.findById(postId);
-        if (!post) return res.status(404).send("Post not found");
+        if (!post) return ErrorHandler.handle(res, 404, "POST /like", "Post not found");
 
         if (!post.likes.includes(userObjectId)) {
             post.likes.push(userObjectId);
@@ -55,7 +56,7 @@ router.post('/like', async (req: Request, res: Response) => {
 
         res.redirect('/user/home');
     } catch (err: any) {
-        res.status(500).send(`Like Error: ${err.message}`);
+        ErrorHandler.handle(res, 500, "POST /like", err.message);
     }
 });
 
