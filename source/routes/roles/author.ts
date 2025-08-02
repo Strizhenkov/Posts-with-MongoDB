@@ -10,21 +10,22 @@ router.get('/createPost', (req: Request, res: Response) => {
 });
 
 router.post('/createPost', async (req: Request, res: Response) => {
-    try {
-        const user = await User.findById(req.session.userId);
-        if (!user || user.role !== 'author') return ErrorHandler.handle(res, 403, "POST /createPost", "Author command only");
+    const routerURL = "POST /author/createPost";
+    const {title, content} = req.body;
+    const user = await User.findById(req.session.userId);
 
-        const { title, content } = req.body;
-        const newPost = new Post({
-            title,
-            content,
-            author: user._id,
-            likes: []
-        });
+    if (!user)
+        return ErrorHandler.handle(res, 404, routerURL, "Author not found");
+    if (user.role !== 'author')
+        return ErrorHandler.handle(res, 403, routerURL, "Author command only");
+
+    const newPost = new Post({title, content, author: user._id, likes: []});
+
+    try {
         await newPost.save();
         res.redirect('/user/home');
     } catch (err: any) {
-        ErrorHandler.handle(res, 400, "POST /createPost", err.message);
+        ErrorHandler.handle(res, 500, routerURL, err.message);
     }
 });
 

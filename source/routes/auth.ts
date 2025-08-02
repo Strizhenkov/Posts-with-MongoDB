@@ -13,25 +13,28 @@ router.get('/login', (req: Request, res: Response) => {
 });
 
 router.post('/register', async (req: Request, res: Response) => {
+    const routerURL = "POST /register";
+    const {username, password, role} = req.body;
+    const user = new User({username, password, role: ['user', 'author', 'admin'].includes(role) ? role : 'user'});
+    
     try {
-        const {username, password, role} = req.body;
-        const user = new User({username, password, role: ['user', 'author', 'admin'].includes(role) ? role : 'user'});
-
         await user.save();
         req.session.userId = user.id;
         res.redirect('/user/home');
     } catch (err: any) {
-        ErrorHandler.handle(res, 400, "POST /register", err.message);
+        ErrorHandler.handle(res, 500, routerURL, err.message);
     }
 });
 
 router.post('/login', async (req: Request, res: Response) => {
+    const routerURL = "POST /login";
     const {username, password} = req.body;
-
     const user = await User.findOne({username});
-    if (!user || !(await user.comparePassword(password))) {
-        return ErrorHandler.handle(res, 400, "POST /login", "Wrong username or password");
-    }
+
+    if (!user) 
+        return ErrorHandler.handle(res, 404, routerURL, "User not found");
+    if (!(await user.comparePassword(password))) 
+        return ErrorHandler.handle(res, 400, routerURL, "Wrong username or password");
 
     req.session.userId = user.id;
     res.redirect('/user/home');

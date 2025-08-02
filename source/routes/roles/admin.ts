@@ -9,15 +9,20 @@ router.get('/deleteUser', (req: Request, res: Response) => {
 });
 
 router.post('/deleteUser', async (req: Request, res: Response) => {
+    const routerURL = "DELETE /admin/deleteUser";
     const {userId} = req.body;
-    try {
-        const admin = await User.findById(req.session.userId);
-        if (!admin || admin.role !== 'admin') return ErrorHandler.handle(res, 403, "DELETE /login", "Admin command only");
+    const admin = await User.findById(req.session.userId);
 
+    if (!admin) 
+        return ErrorHandler.handle(res, 404, routerURL, "Admin not found");
+    if (admin.role !== 'admin') 
+        return ErrorHandler.handle(res, 403, routerURL, "Invalid role");
+
+    try {
         await User.findByIdAndDelete(userId);
         res.redirect('/user/home');
     } catch (err: any) {
-        ErrorHandler.handle(res, 400, "DELETE /login", err.message);
+        ErrorHandler.handle(res, 500, routerURL, err.message);
     }
 });
 
