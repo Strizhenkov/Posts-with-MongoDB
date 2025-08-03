@@ -16,10 +16,17 @@
             <p><strong>Лайков:</strong> <%= post.likeCount %></p>
 
             <% if (user.id !== post.authorId) { %>
-                <form action="/user/subscribe" method="POST">
-                    <input type="hidden" name="authorId" value="<%= post.authorId %>">
-                    <button type="submit">Подписаться</button>
-                </form>
+                <% if (post.isSubscribed) { %>
+                    <form action="/user/unsubscribe" method="POST">
+                        <input type="hidden" name="authorId" value="<%= post.authorId %>">
+                        <button type="submit" style="color: red;">Отписаться</button>
+                    </form>
+                <% } else { %>
+                    <form action="/user/subscribe" method="POST">
+                        <input type="hidden" name="authorId" value="<%= post.authorId %>">
+                        <button type="submit" style="color: green;">Подписаться</button>
+                    </form>
+                <% } %>
             <% } %>
 
             <form action="/user/like" method="POST" style="display:inline;">

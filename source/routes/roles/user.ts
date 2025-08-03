@@ -13,7 +13,7 @@ router.get('/home', async (req: Request, res: Response) => {
     if (!(await Validator.authenticatedCheck(res, userId, routerURL))) return;
     if (!(await Validator.userExistsCheckById(res, userId, routerURL))) return;
 
-    const currentUser = await User.findById(userId).lean();
+    const user = await User.findById(userId).lean();
     const posts = await Post.find().sort({_id: -1}).limit(5).lean();
     const authorIds = posts.map(post => post.author);
     const authors = await User.find({_id: {$in: authorIds}}) .select('_id username') .lean();
@@ -25,14 +25,15 @@ router.get('/home', async (req: Request, res: Response) => {
         content: post.content,
         authorName: authorMap.get(post.author.toString()),
         authorId: post.author.toString(),
-        likeCount: post.likes.length
+        likeCount: post.likes.length,
+        isSubscribed: user!.subscriptions.some(sub => sub.toString() === post.author.toString())
     }));
 
     res.render('home', {
         user: {
-            id: currentUser!._id.toString(),
-            username: currentUser!.username,
-            role: currentUser!.role
+            id: user!._id.toString(),
+            username: user!.username,
+            role: user!.role
         },
         posts: processedPosts
     });
@@ -73,6 +74,28 @@ router.post('/subscribe', async (req: Request, res: Response) => {
     await Validator.safe(res, routerURL, async () => {
         if (!user!.subscriptions.includes(authorObjectId)) {
             user!.subscriptions.push(authorObjectId);
+            await user!.save();
+        }
+        res.redirect('/user/home');
+    });
+});
+
+router.post('/unsubscribe', async (req: Request, res: Response) => {
+    const routerURL = "POST /user/unsubscribe";
+    const userId = req.session.userId;
+    const {authorId} = req.body;
+
+    if (!(await Validator.authenticatedCheck(res, userId, routerURL))) return;
+    if (!(await Validator.userExistsCheckById(res, userId, routerURL))) return;
+    if (!(await Validator.userRoleValidCheck(res, authorId, 'author', routerURL))) return;
+
+    const user = await User.findById(userId);
+    const authorObjectId = new Types.ObjectId(authorId);
+
+    await Validator.safe(res, routerURL, async () => {
+        const index = user!.subscriptions.findIndex(id => id.equals(authorObjectId));
+        if (index !== -1) {
+            user!.subscriptions.splice(index, 1);
             await user!.save();
         }
         res.redirect('/user/home');
