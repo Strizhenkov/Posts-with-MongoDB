@@ -1,6 +1,6 @@
 import {Router, Request, Response} from "express";
 import User from "../model/entities/user.ts";
-import {ErrorHandler} from "../utiles/errorHandler.ts";
+import {Validator} from "../utiles/validator.ts";
 
 const router = Router();
 
@@ -13,30 +13,27 @@ router.get('/login', (req: Request, res: Response) => {
 });
 
 router.post('/register', async (req: Request, res: Response) => {
-    const routerURL = "POST /register";
+    const routerURL = "POST /auth/register";
     const {username, password, role} = req.body;
     const user = new User({username, password, role: ['user', 'author', 'admin'].includes(role) ? role : 'user'});
     
-    try {
+    await Validator.safe(res, routerURL, async () => {
         await user.save();
         req.session.userId = user.id;
         res.redirect('/user/home');
-    } catch (err: any) {
-        ErrorHandler.handle(res, 500, routerURL, err.message);
-    }
+    });
 });
 
 router.post('/login', async (req: Request, res: Response) => {
-    const routerURL = "POST /login";
+    const routerURL = "POST /auth/login";
     const {username, password} = req.body;
+
+    if (!(await Validator.userExistsCheckByName(res, username, routerURL))) return;
+    if (!(await Validator.passwordMatchCheck(res, username, password, routerURL))) return;
+
     const user = await User.findOne({username});
 
-    if (!user) 
-        return ErrorHandler.handle(res, 404, routerURL, "User not found");
-    if (!(await user.comparePassword(password))) 
-        return ErrorHandler.handle(res, 400, routerURL, "Wrong username or password");
-
-    req.session.userId = user.id;
+    req.session.userId = user!.id;
     res.redirect('/user/home');
 });
 
