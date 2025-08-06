@@ -3,6 +3,8 @@ import User from "../../model/entities/user.ts";
 import Post from "../../model/entities/post.ts";
 import {Validator} from "../../utiles/validator.ts";
 import {AuthorType} from "../../model/helpers/roles.ts";
+import {AuthenticatedCheck} from "../../utiles/validationSteps/authenticatedCheck.ts";
+import {UserRoleValidCheck} from "../../utiles/validationSteps/userRoleValidCheck.ts";
 
 const router = Router();
 
@@ -15,13 +17,16 @@ router.post('/createPost', async (req: Request, res: Response) => {
     const {title, content} = req.body;
     const userId = req.session.userId;
     
-    if (!(await Validator.authenticatedCheck(res, userId, routerURL))) return;
-    if (!(await Validator.userRoleValidCheck(res, userId, new AuthorType().getRole(), routerURL))) return;
+    const validator = new Validator(res, routerURL)
+            .addStep(new AuthenticatedCheck(userId))
+            .addStep(new UserRoleValidCheck(userId, new AuthorType().getRole()));
+
+    if (!(await validator.run())) return;
 
     const user = await User.findById(userId);
     const newPost = new Post({title, content, author: user!._id, likes: []});
 
-    await Validator.safe(res, routerURL, async () => {
+    await validator.safeExecute(async () => {
         await newPost.save();
         res.redirect('/user/home');
     });

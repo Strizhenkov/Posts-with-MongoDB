@@ -4,15 +4,22 @@ import Post from "../../model/entities/post.ts";
 import {Types} from "mongoose";
 import {Validator} from "../../utiles/validator.ts";
 import {AuthorType} from "../../model/helpers/roles.ts";
+import {AuthenticatedCheck} from "../../utiles/validationSteps/authenticatedCheck.ts";
+import {UserExistsByIdCheck} from "../../utiles/validationSteps/userExistsByIdCheck.ts";
+import {UserRoleValidCheck} from "../../utiles/validationSteps/userRoleValidCheck.ts";
+import {PostExistsCheck} from "../../utiles/validationSteps/postExistsCheck.ts";
 
 const router = Router();
 
 router.get('/home', async (req: Request, res: Response) => {
     const routerURL = "GET /user/home";
     const userId = req.session.userId;
-    
-    if (!(await Validator.authenticatedCheck(res, userId, routerURL))) return;
-    if (!(await Validator.userExistsCheckById(res, userId, routerURL))) return;
+
+    const validator = new Validator(res, routerURL)
+        .addStep(new AuthenticatedCheck(userId))
+        .addStep(new UserExistsByIdCheck(userId));
+
+    if (!(await validator.run())) return;
 
     const user = await User.findById(userId).lean();
     const posts = await Post.find().sort({_id: -1}).limit(5).lean();
@@ -46,12 +53,15 @@ router.post('/like', async (req: Request, res: Response) => {
     const userId = req.session.userId;
     const userObjectId = new Types.ObjectId(userId);
 
-    if (!(await Validator.authenticatedCheck(res, userId, routerURL))) return;
-    if (!(await Validator.postExistsCheck(res, postId, routerURL))) return;
+    const validator = new Validator(res, routerURL)
+        .addStep(new AuthenticatedCheck(userId))
+        .addStep(new PostExistsCheck(postId))
+
+    if (!(await validator.run())) return;
     
     const post = await Post.findById(postId);
 
-    await Validator.safe(res, routerURL, async () => {
+    await validator.safeExecute(async () => {
         if (!post!.likes.includes(userObjectId)) {
             post!.likes.push(userObjectId);
             await post!.save();
@@ -65,14 +75,17 @@ router.post('/subscribe', async (req: Request, res: Response) => {
     const userId = req.session.userId;
     const {authorId} = req.body;
 
-    if (!(await Validator.authenticatedCheck(res, userId, routerURL))) return;
-    if (!(await Validator.userExistsCheckById(res, userId, routerURL))) return;
-    if (!(await Validator.userRoleValidCheck(res, authorId, new AuthorType().getRole(), routerURL))) return;
+    const validator = new Validator(res, routerURL)
+        .addStep(new AuthenticatedCheck(userId))
+        .addStep(new UserExistsByIdCheck(userId))
+        .addStep(new UserRoleValidCheck(authorId, new AuthorType().getRole()));
+        
+    if (!(await validator.run())) return;
 
     const user = await User.findById(userId);
     const authorObjectId = new Types.ObjectId(authorId);
 
-    await Validator.safe(res, routerURL, async () => {
+    await validator.safeExecute(async () => {
         if (!user!.subscriptions.includes(authorObjectId)) {
             user!.subscriptions.push(authorObjectId);
             await user!.save();
@@ -86,14 +99,17 @@ router.post('/unsubscribe', async (req: Request, res: Response) => {
     const userId = req.session.userId;
     const {authorId} = req.body;
 
-    if (!(await Validator.authenticatedCheck(res, userId, routerURL))) return;
-    if (!(await Validator.userExistsCheckById(res, userId, routerURL))) return;
-    if (!(await Validator.userRoleValidCheck(res, authorId, 'author', routerURL))) return;
+    const validator = new Validator(res, routerURL)
+        .addStep(new AuthenticatedCheck(userId))
+        .addStep(new UserExistsByIdCheck(userId))
+        .addStep(new UserRoleValidCheck(authorId, new AuthorType().getRole()));
+
+    if (!(await validator.run())) return;
 
     const user = await User.findById(userId);
     const authorObjectId = new Types.ObjectId(authorId);
 
-    await Validator.safe(res, routerURL, async () => {
+    await validator.safeExecute(async () => {
         const index = user!.subscriptions.findIndex(id => id.equals(authorObjectId));
         if (index !== -1) {
             user!.subscriptions.splice(index, 1);

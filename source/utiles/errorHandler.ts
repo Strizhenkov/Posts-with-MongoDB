@@ -1,7 +1,7 @@
 import {Response} from 'express';
 
 export class ErrorHandler {
-    private static readonly errorMessages: Record<number, string> = {
+    private readonly errorMessages: Record<number, string> = {
         400: "Bad Request",
         401: "Unauthorized",
         403: "Forbidden",
@@ -12,7 +12,7 @@ export class ErrorHandler {
         500: "Internal Server Error"
     };
 
-    public static handle(res: Response, statusCode: number, context: string, details: string) {
+    public handle(res: Response, statusCode: number, context: string, details: string) {
         const short = this.errorMessages[statusCode] || "Unknown Error";
         console.error(`[Error ${statusCode} - ${short}] in ${context}: ${details}`);
 
