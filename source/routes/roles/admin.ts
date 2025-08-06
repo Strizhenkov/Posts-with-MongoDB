@@ -1,6 +1,7 @@
 import {Router, Request, Response} from "express";
 import User from "../../model/entities/user.ts";
 import {Validator} from "../../utiles/validator.ts";
+import {AdminType} from "../../model/helpers/roles.ts";
 
 const router = Router();
 
@@ -14,7 +15,7 @@ router.post('/deleteUser', async (req: Request, res: Response) => {
     const adminId = req.session.userId;
 
     if (!(await Validator.authenticatedCheck(res, adminId, routerURL))) return;
-    if (!(await Validator.userRoleValidCheck(res, adminId, 'admin', routerURL))) return;
+    if (!(await Validator.userRoleValidCheck(res, adminId, new AdminType().getRole(), routerURL))) return;
     if (!(await Validator.userExistsCheckById(res, userId, routerURL))) return;
 
     await Validator.safe(res, routerURL, async () => {

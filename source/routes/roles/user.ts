@@ -3,6 +3,7 @@ import User from "../../model/entities/user.ts";
 import Post from "../../model/entities/post.ts";
 import {Types} from "mongoose";
 import {Validator} from "../../utiles/validator.ts";
+import {AuthorType} from "../../model/helpers/roles.ts";
 
 const router = Router();
 
@@ -66,7 +67,7 @@ router.post('/subscribe', async (req: Request, res: Response) => {
 
     if (!(await Validator.authenticatedCheck(res, userId, routerURL))) return;
     if (!(await Validator.userExistsCheckById(res, userId, routerURL))) return;
-    if (!(await Validator.userRoleValidCheck(res, authorId, 'author', routerURL))) return;
+    if (!(await Validator.userRoleValidCheck(res, authorId, new AuthorType().getRole(), routerURL))) return;
 
     const user = await User.findById(userId);
     const authorObjectId = new Types.ObjectId(authorId);

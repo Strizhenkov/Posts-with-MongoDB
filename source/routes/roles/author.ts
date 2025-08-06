@@ -2,6 +2,7 @@ import {Router, Request, Response} from "express";
 import User from "../../model/entities/user.ts";
 import Post from "../../model/entities/post.ts";
 import {Validator} from "../../utiles/validator.ts";
+import {AuthorType} from "../../model/helpers/roles.ts";
 
 const router = Router();
 
@@ -15,7 +16,7 @@ router.post('/createPost', async (req: Request, res: Response) => {
     const userId = req.session.userId;
     
     if (!(await Validator.authenticatedCheck(res, userId, routerURL))) return;
-    if (!(await Validator.userRoleValidCheck(res, userId, 'author', routerURL))) return;
+    if (!(await Validator.userRoleValidCheck(res, userId, new AuthorType().getRole(), routerURL))) return;
 
     const user = await User.findById(userId);
     const newPost = new Post({title, content, author: user!._id, likes: []});
