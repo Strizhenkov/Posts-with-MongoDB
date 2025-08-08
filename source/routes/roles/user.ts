@@ -1,13 +1,13 @@
 import {Router, Request, Response} from "express";
-import User from "../../model/entities/user.ts";
-import Post from "../../model/entities/post.ts";
-import {Types} from "mongoose";
+import {IUser} from "../../model/entities/user.ts";
 import {Validator} from "../../utiles/validator.ts";
 import {AuthorType} from "../../model/helpers/roles.ts";
 import {AuthenticatedCheck} from "../../utiles/validationSteps/authenticatedCheck.ts";
 import {UserExistsByIdCheck} from "../../utiles/validationSteps/userExistsByIdCheck.ts";
 import {UserRoleValidCheck} from "../../utiles/validationSteps/userRoleValidCheck.ts";
 import {PostExistsCheck} from "../../utiles/validationSteps/postExistsCheck.ts";
+import {UserDBUnit} from "../../model/dbUnits/userUnit.ts";
+import {PostDBUnit} from "../../model/dbUnits/postUnit.ts";
 
 const router = Router();
 
@@ -21,29 +21,32 @@ router.get('/home', async (req: Request, res: Response) => {
 
     if (!(await validator.run())) return;
 
-    const user = await User.findById(userId).lean();
-    const posts = await Post.find().sort({_id: -1}).limit(5).lean();
-    const authorIds = posts.map(post => post.author);
-    const authors = await User.find({_id: {$in: authorIds}}) .select('_id username') .lean();
-    const authorMap = new Map(authors.map(author => [author._id.toString(), author.username]));
+    const user = await UserDBUnit.findById(userId as string) as IUser;
+    const posts = await PostDBUnit.findRecent(5);
+    const authorIds = Array.from(new Set(posts.map(p => p.author.toString())));
+    const authorDocs = await Promise.all(authorIds.map(id => UserDBUnit.findById(id)));
+    const authorMap = new Map(
+        authorDocs
+            .filter((a): a is NonNullable<typeof a> => Boolean(a))
+            .map(a => [a.id.toString(), a.username])
+    );
 
-    const processedPosts = posts.map(post => ({
-        id: post._id.toString(),
-        title: post.title,
-        content: post.content,
-        authorName: authorMap.get(post.author.toString()),
-        authorId: post.author.toString(),
-        likeCount: post.likes.length,
-        isSubscribed: user!.subscriptions.some(sub => sub.toString() === post.author.toString())
-    }));
+    const processedPosts = posts.map(post => {
+        const authorId = post.author.toString();
+        return {
+            id: post.id,
+            title: post.title,
+            content: post.content,
+            authorName: authorMap.get(authorId),
+            authorId,
+            likeCount: post.likes.length,
+            isSubscribed: user.subscriptions.some(sub => sub.toString() === authorId),
+        };
+    });
 
-    res.render('home', {
-        user: {
-            id: user!._id.toString(),
-            username: user!.username,
-            role: user!.role
-        },
-        posts: processedPosts
+    res.render("home", {
+        user: {id: user.id.toString(), username: user.username, role: user.role},
+        posts: processedPosts,
     });
 });
 
@@ -51,21 +54,15 @@ router.post('/like', async (req: Request, res: Response) => {
     const routerURL = "GET /user/like";
     const {postId} = req.body;
     const userId = req.session.userId;
-    const userObjectId = new Types.ObjectId(userId);
 
     const validator = new Validator(res, routerURL)
         .addStep(new AuthenticatedCheck(userId))
         .addStep(new PostExistsCheck(postId))
 
     if (!(await validator.run())) return;
-    
-    const post = await Post.findById(postId);
 
     await validator.safeExecute(async () => {
-        if (!post!.likes.includes(userObjectId)) {
-            post!.likes.push(userObjectId);
-            await post!.save();
-        }
+        await PostDBUnit.like(postId as string, userId as string);
         res.redirect('/user/home');
     });
 });
@@ -82,14 +79,8 @@ router.post('/subscribe', async (req: Request, res: Response) => {
         
     if (!(await validator.run())) return;
 
-    const user = await User.findById(userId);
-    const authorObjectId = new Types.ObjectId(authorId);
-
     await validator.safeExecute(async () => {
-        if (!user!.subscriptions.includes(authorObjectId)) {
-            user!.subscriptions.push(authorObjectId);
-            await user!.save();
-        }
+        await UserDBUnit.subscribe(userId as string, authorId as string)
         res.redirect('/user/home');
     });
 });
@@ -106,15 +97,8 @@ router.post('/unsubscribe', async (req: Request, res: Response) => {
 
     if (!(await validator.run())) return;
 
-    const user = await User.findById(userId);
-    const authorObjectId = new Types.ObjectId(authorId);
-
     await validator.safeExecute(async () => {
-        const index = user!.subscriptions.findIndex(id => id.equals(authorObjectId));
-        if (index !== -1) {
-            user!.subscriptions.splice(index, 1);
-            await user!.save();
-        }
+        await UserDBUnit.unsubscribe(userId as string, authorId as string);
         res.redirect('/user/home');
     });
 });

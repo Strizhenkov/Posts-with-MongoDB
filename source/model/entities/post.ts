@@ -14,4 +14,11 @@ const PostSchema = new Schema<IPost>({
     likes: {type: [Schema.Types.ObjectId], ref: "User", default: []},
 });
 
+PostSchema.virtual("id").get(function (this: {_id: Types.ObjectId}) {
+    return this._id.toString();
+});
+
+PostSchema.set("toObject", {virtuals: true});
+PostSchema.set("toJSON",   {virtuals: true});
+
 export default mongoose.model<IPost>("Post", PostSchema);

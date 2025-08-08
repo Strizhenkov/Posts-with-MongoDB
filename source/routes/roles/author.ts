@@ -1,10 +1,11 @@
 import {Router, Request, Response} from "express";
-import User from "../../model/entities/user.ts";
 import Post from "../../model/entities/post.ts";
 import {Validator} from "../../utiles/validator.ts";
 import {AuthorType} from "../../model/helpers/roles.ts";
 import {AuthenticatedCheck} from "../../utiles/validationSteps/authenticatedCheck.ts";
 import {UserRoleValidCheck} from "../../utiles/validationSteps/userRoleValidCheck.ts";
+import {UserDBUnit} from "../../model/dbUnits/userUnit.ts";
+import {PostDBUnit} from "../../model/dbUnits/postUnit.ts";
 
 const router = Router();
 
@@ -23,11 +24,11 @@ router.post('/createPost', async (req: Request, res: Response) => {
 
     if (!(await validator.run())) return;
 
-    const user = await User.findById(userId);
+    const user = await UserDBUnit.findById(userId as string);
     const newPost = new Post({title, content, author: user!._id, likes: []});
 
     await validator.safeExecute(async () => {
-        await newPost.save();
+        await PostDBUnit.create(newPost);
         res.redirect('/user/home');
     });
 });

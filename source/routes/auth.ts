@@ -1,9 +1,10 @@
 import {Router, Request, Response} from "express";
-import User from "../model/entities/user.ts";
+import User, {IUser} from "../model/entities/user.ts";
 import {Validator} from "../utiles/validator.ts";
 import {USER_ROLE_VALUES, UserType} from "../model/helpers/roles.ts";
 import {PasswordMatchCheck} from "../utiles/validationSteps/passwordMacthCheck.ts";
 import {UserExistsByNameCheck} from "../utiles/validationSteps/userExistsByNameCheck.ts";
+import {UserDBUnit} from "../model/dbUnits/userUnit.ts";
 
 const router = Router();
 
@@ -23,7 +24,7 @@ router.post('/register', async (req: Request, res: Response) => {
     const validator = new Validator(res, routerURL);
 
     await validator.safeExecute(async () => {
-        await user.save();
+        await UserDBUnit.create(user);
         req.session.userId = user.id;
         res.redirect('/user/home');
     });
@@ -39,9 +40,9 @@ router.post('/login', async (req: Request, res: Response) => {
 
     if (!(await validator.run())) return;
 
-    const user = await User.findOne({username});
+    const user = await UserDBUnit.findByUsername(username) as IUser;
 
-    req.session.userId = user!.id;
+    req.session.userId = user.id;
     res.redirect('/user/home');
 });
 

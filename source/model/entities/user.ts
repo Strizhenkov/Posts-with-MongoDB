@@ -1,9 +1,8 @@
 import mongoose, {Document, Schema, Types} from "mongoose";
 import bcrypt from "bcrypt";
-import {createRoleFromString, IUserType, USER_ROLE_VALUES, UserType} from "../helpers/roles.ts";
+import {createRoleFromString, USER_ROLE_VALUES, UserType} from "../helpers/roles.ts";
 
 export interface IUser extends Document {
-    id : string;
     username : string;
     password : string;
     role: string;
@@ -24,10 +23,6 @@ const UserSchema = new Schema<IUser> ({
     ],
 });
 
-UserSchema.post("init", function (doc: any) {
-    doc.role = createRoleFromString(doc.role);
-});
-
 UserSchema.pre<IUser>("save", async function(next) {
     if (!this.isModified("password"))
         return next();
@@ -40,13 +35,15 @@ UserSchema.pre<IUser>("save", async function(next) {
     }
 });
 
-
 UserSchema.methods.comparePassword = async function (password : string) : Promise<boolean> {
     return await bcrypt.compare(password.trim(), this.password);
 };
 
-UserSchema.virtual("id").get(function (this: { _id: Types.ObjectId }) {
+UserSchema.virtual("id").get(function (this: {_id: Types.ObjectId}) {
     return this._id.toString();
 });
+
+UserSchema.set("toObject", {virtuals: true});
+UserSchema.set("toJSON",   {virtuals: true});
 
 export default mongoose.model<IUser>("User", UserSchema);
