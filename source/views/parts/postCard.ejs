@@ -1,0 +1,25 @@
+<div class="card">
+    <h3><%= post.title %></h3>
+    <p><%= post.content %></p>
+    <p><strong>Автор:</strong> <%= post.authorName %></p>
+    <p><strong>Лайков:</strong> <%= post.likeCount %></p>
+
+    <% if (user.id !== post.authorId) { %>
+        <% if (post.isSubscribed) { %>
+            <form action="/user/unsubscribe" method="POST">
+                <input type="hidden" name="authorId" value="<%= post.authorId %>">
+                <button type="submit" style="color: red;">Отписаться</button>
+            </form>
+        <% } else { %>
+            <form action="/user/subscribe" method="POST">
+                <input type="hidden" name="authorId" value="<%= post.authorId %>">
+                <button type="submit" style="color: green;">Подписаться</button>
+            </form>
+        <% } %>
+    <% } %>
+
+    <form action="<%= post.isLiked ? '/user/unlike' : '/user/like' %>" method="POST" style="display:inline;">
+        <input type="hidden" name="postId" value="<%= post.id %>">
+        <button type="submit"><%= post.isLiked ? 'Убрать лайк' : 'Поставить лайк' %></button>
+    </form>
+</div>

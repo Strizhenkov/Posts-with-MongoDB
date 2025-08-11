@@ -8,7 +8,13 @@ export class PostUnit extends DBUnit<IPost> {
     }
     
     public async findRecent(limit = 5): Promise<IPost[]> {
-        return await  Post.find().sort({_id: -1}).limit(limit);
+        return await Post.find().sort({_id: -1}).limit(limit);
+    }
+
+    public async findRecentByAuthors(authorIds: string[], limit = 5): Promise<IPost[]> {
+        if (!authorIds.length) 
+            return [];
+        return await Post.find({author: {$in: authorIds}}).sort({_id: -1}).limit(limit);
     }
 
     public async like(postId: string, userId: string) : Promise<IPost | null>  {
