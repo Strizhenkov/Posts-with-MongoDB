@@ -29,9 +29,9 @@
                 <% } %>
             <% } %>
 
-            <form action="/user/like" method="POST" style="display:inline;">
+            <form action="<%= post.isLiked ? '/user/unlike' : '/user/like' %>" method="POST" style="display:inline;">
                 <input type="hidden" name="postId" value="<%= post.id %>">
-                <button type="submit">Поставить лайк</button>
+                <button type="submit"><%= post.isLiked ? 'Убрать лайк' : 'Поставить лайк' %></button>
             </form>
         </div>
     <% }); %>

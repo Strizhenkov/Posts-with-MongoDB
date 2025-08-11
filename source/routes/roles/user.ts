@@ -33,6 +33,7 @@ router.get('/home', async (req: Request, res: Response) => {
 
     const processedPosts = posts.map(post => {
         const authorId = post.author.toString();
+        const isLiked = post.likes.some(id => id.toString() === user.id.toString());
         return {
             id: post.id,
             title: post.title,
@@ -41,6 +42,7 @@ router.get('/home', async (req: Request, res: Response) => {
             authorId,
             likeCount: post.likes.length,
             isSubscribed: user.subscriptions.some(sub => sub.toString() === authorId),
+            isLiked,
         };
     });
 
@@ -63,6 +65,23 @@ router.post('/like', async (req: Request, res: Response) => {
 
     await validator.safeExecute(async () => {
         await PostDBUnit.like(postId as string, userId as string);
+        res.redirect('/user/home');
+    });
+});
+
+router.post('/unlike', async (req: Request, res: Response) => {
+    const routerURL = "POST /user/unlike";
+    const {postId} = req.body;
+    const userId = req.session.userId;
+
+    const validator = new Validator(res, routerURL)
+        .addStep(new AuthenticatedCheck(userId))
+        .addStep(new PostExistsCheck(postId));
+
+    if (!(await validator.run())) return;
+
+    await validator.safeExecute(async () => {
+        await PostDBUnit.unlike(postId as string, userId as string);
         res.redirect('/user/home');
     });
 });
