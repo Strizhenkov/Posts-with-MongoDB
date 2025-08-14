@@ -30,7 +30,7 @@ router.get('/home', async (req: Request, res: Response) => {
 
     const allAuthorIds = Array.from(new Set([...postsAll.map(p => p.author.toString()), ...postsSubs.map(p => p.author.toString())]));
     const authorDocs = await Promise.all(allAuthorIds.map(id => UserDBUnit.findById(id)));
-    const authorMap = new Map(authorDocs.filter((a): a is NonNullable<typeof a> => Boolean(a)).map(a => [a.id.toString(), a.username]));
+    const authorMap = new Map(authorDocs.filter((a): a is NonNullable<typeof a> => Boolean(a)).map(a => [a.id.toString() as string, a.username]));
 
     const currentUserId = user.id.toString();
     const mapPost = (post: IPost) => {

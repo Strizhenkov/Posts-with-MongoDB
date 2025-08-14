@@ -1,31 +1,37 @@
-const userRole = 'user';
-const authorRole = 'author';
-const adminRole = 'admin';
+export const enum TypeRoles{
+    userRole = 'user',
+    authorRole = 'author',
+    adminRole = 'admin',
+}
 
 export interface IUserType {
-    role: string;
+    _role: string;
+    toString: () => string;
     getRole(): string;
 }
 
 export class UserType implements IUserType {
-    role = userRole;
-    getRole() {return this.role;}
+    _role = TypeRoles.userRole;
+    toString = () => '' + this._role;
+    getRole() {return this._role;}
 }
 
 export class AuthorType implements IUserType {
-    role = authorRole;
-    getRole() {return this.role;}
+    _role = TypeRoles.authorRole;
+    toString = () => '' + this._role;
+    getRole() {return this._role;}
 }
 
 export class AdminType implements IUserType {
-    role = adminRole;
-    getRole() {return this.role;}
+    _role = TypeRoles.adminRole;
+    toString = () => '' + this._role;
+    getRole() {return this._role;}
 }
 
 export function createRoleFromString(role: string): IUserType {
     switch (role) {
-        case adminRole: return new AdminType();
-        case authorRole: return new AuthorType();
+        case TypeRoles.adminRole: return new AdminType();
+        case TypeRoles.authorRole: return new AuthorType();
         default: return new UserType();
     }
 }
