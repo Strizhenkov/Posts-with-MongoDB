@@ -2,7 +2,7 @@ import express, {Express} from 'express';
 import {IServerStep} from './iServerStep.ts';
 
 export class ViewConfigurator implements IServerStep  {
-    execute(app: Express, stepIndex: number): void {
+    public execute(app: Express, stepIndex: number): void {
         try {
             app.use(express.json());
             app.use(express.urlencoded({extended: true}));

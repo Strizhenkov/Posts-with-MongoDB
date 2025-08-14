@@ -13,7 +13,7 @@ declare module 'express-session' {
 }
 
 export class SessionConfigurator implements IServerStep {
-    execute(app: Express, stepIndex: number): void {
+    public execute(app: Express, stepIndex: number): void {
         try {
             app.use(session({
                 secret: process.env.SESSION_SECRET as string,

@@ -7,7 +7,7 @@ import {IServerStep} from './iServerStep.ts';
 dotenv.config();
 
 export class ServerStarter implements IServerStep  {
-    execute(app: Express, stepIndex: number): void {
+    public execute(app: Express, stepIndex: number): void {
         try {
             const PORT = process.env.Port || 3000;
             https.createServer({

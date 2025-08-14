@@ -6,7 +6,7 @@ import adminRoutes from '../../routes/roles/admin.ts';
 import {IServerStep} from './iServerStep.ts';
 
 export class RouterConfigurator implements IServerStep  {
-    execute(app: Express, stepIndex: number): void {
+    public execute(app: Express, stepIndex: number): void {
         try {
             app.get('/', (req, res) => res.redirect('/auth/register'));
             app.use('/auth', authRoutes);

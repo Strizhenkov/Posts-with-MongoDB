@@ -7,14 +7,14 @@ import {ServerStarter} from './steps/serverStarter.ts';
 import {IServerStep} from './steps/iServerStep.ts';
 
 export class ServerRunner {
-    private steps: IServerStep[];
+    private _steps: IServerStep[];
 
-    constructor();
+    public constructor();
 
-    constructor(steps: IServerStep[]);
+    public constructor(steps: IServerStep[]);
 
-    constructor(steps?: IServerStep[]) {
-        this.steps = steps ?? [
+    public constructor(steps?: IServerStep[]) {
+        this._steps = steps ?? [
             new DatabaseConfigurator(),
             new SessionConfigurator(),
             new ViewConfigurator(),
@@ -23,12 +23,12 @@ export class ServerRunner {
         ];
     }
 
-    async run(): Promise<void> {
-        const app = express();
+    public async run(): Promise<void> {
+        const _app = express();
 
-        for (let i = 0; i < this.steps.length; i++) {
+        for (let i = 0; i < this._steps.length; i++) {
             try {
-                await this.steps[i].execute(app, i);
+                await this._steps[i].execute(_app, i);
             } catch (err) {
                 process.exit(1);
             }
