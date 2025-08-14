@@ -2,10 +2,10 @@ import {Router, Request, Response} from "express";
 import Post from "../../model/entities/post.ts";
 import {Validator} from "../../utiles/validator.ts";
 import {AuthorType} from "../../model/helpers/roles.ts";
-import {AuthenticatedCheck} from "../../utiles/validationSteps/authenticatedCheck.ts";
-import {UserRoleValidCheck} from "../../utiles/validationSteps/userRoleValidCheck.ts";
+import {AuthenticatedCheck, UserRoleValidCheck} from "../../utiles/validationSteps/validationConfig.ts";
 import {UserDBUnit} from "../../model/dbUnits/userUnit.ts";
 import {PostDBUnit} from "../../model/dbUnits/postUnit.ts";
+import {SafeRunner} from "../../utiles/safeRunner.ts";
 
 const router = Router();
 
@@ -27,7 +27,8 @@ router.post('/createPost', async (req: Request, res: Response) => {
     const user = await UserDBUnit.findById(userId as string);
     const newPost = new Post({title, content, author: user!._id, likes: []});
 
-    await validator.safeExecute(async () => {
+    const safeRunner = new SafeRunner(res, routerURL);
+    await safeRunner.safeExecute(async () => {
         await PostDBUnit.create(newPost);
         res.redirect('/user/home');
     });

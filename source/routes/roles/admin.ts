@@ -1,10 +1,9 @@
 import {Router, Request, Response} from "express";
 import {Validator} from "../../utiles/validator.ts";
 import {AdminType} from "../../model/helpers/roles.ts";
-import {AuthenticatedCheck} from "../../utiles/validationSteps/authenticatedCheck.ts";
-import {UserRoleValidCheck} from "../../utiles/validationSteps/userRoleValidCheck.ts";
-import {UserExistsByIdCheck} from "../../utiles/validationSteps/userExistsByIdCheck.ts";
+import {AuthenticatedCheck, UserRoleValidCheck, UserExistsByIdCheck} from "../../utiles/validationSteps/validationConfig.ts";
 import {UserDBUnit} from "../../model/dbUnits/userUnit.ts";
+import {SafeRunner} from "../../utiles/safeRunner.ts";
 
 const router = Router();
 
@@ -24,7 +23,8 @@ router.post('/deleteUser', async (req: Request, res: Response) => {
 
     if (!(await validator.run())) return;
 
-    await validator.safeExecute(async () => {
+    const safeRunner = new SafeRunner(res, routerURL);
+    await safeRunner.safeExecute(async () => {
         await UserDBUnit.deleteById(userId);
         res.redirect('/user/home');
     });

@@ -2,9 +2,9 @@ import {Router, Request, Response} from "express";
 import User, {IUser} from "../model/entities/user.ts";
 import {Validator} from "../utiles/validator.ts";
 import {USER_ROLE_VALUES, UserType} from "../model/helpers/roles.ts";
-import {PasswordMatchCheck} from "../utiles/validationSteps/passwordMacthCheck.ts";
-import {UserExistsByNameCheck} from "../utiles/validationSteps/userExistsByNameCheck.ts";
 import {UserDBUnit} from "../model/dbUnits/userUnit.ts";
+import {PasswordMatchCheck, UserExistsByNameCheck} from "../utiles/validationSteps/validationConfig.ts";
+import { SafeRunner } from "../utiles/safeRunner.ts";
 
 const router = Router();
 
@@ -21,9 +21,8 @@ router.post('/register', async (req: Request, res: Response) => {
     const {username, password, role} = req.body;
     const user = new User({username, password, role: USER_ROLE_VALUES.includes(role) ? role : new UserType().getRole()});
     
-    const validator = new Validator(res, routerURL);
-
-    await validator.safeExecute(async () => {
+    const safeRunner = new SafeRunner(res, routerURL);
+    await safeRunner.safeExecute(async () => {
         await UserDBUnit.create(user);
         req.session.userId = user.id;
         res.redirect('/user/home');

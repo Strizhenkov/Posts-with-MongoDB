@@ -2,13 +2,11 @@ import {Router, Request, Response} from "express";
 import {IUser} from "../../model/entities/user.ts";
 import {Validator} from "../../utiles/validator.ts";
 import {AuthorType} from "../../model/helpers/roles.ts";
-import {AuthenticatedCheck} from "../../utiles/validationSteps/authenticatedCheck.ts";
-import {UserExistsByIdCheck} from "../../utiles/validationSteps/userExistsByIdCheck.ts";
-import {UserRoleValidCheck} from "../../utiles/validationSteps/userRoleValidCheck.ts";
-import {PostExistsCheck} from "../../utiles/validationSteps/postExistsCheck.ts";
+import {AuthenticatedCheck, UserRoleValidCheck, UserExistsByIdCheck, PostExistsCheck} from "../../utiles/validationSteps/validationConfig.ts";
 import {UserDBUnit} from "../../model/dbUnits/userUnit.ts";
 import {PostDBUnit} from "../../model/dbUnits/postUnit.ts";
 import {IPost} from "../../model/entities/post.ts";
+import {SafeRunner} from "../../utiles/safeRunner.ts";
 
 const router = Router();
 
@@ -66,7 +64,8 @@ router.post('/like', async (req: Request, res: Response) => {
 
     if (!(await validator.run())) return;
 
-    await validator.safeExecute(async () => {
+    const safeRunner = new SafeRunner(res, routerURL);
+    await safeRunner.safeExecute(async () => {
         await PostDBUnit.like(postId as string, userId as string);
         res.redirect('/user/home');
     });
@@ -83,7 +82,8 @@ router.post('/unlike', async (req: Request, res: Response) => {
 
     if (!(await validator.run())) return;
 
-    await validator.safeExecute(async () => {
+    const safeRunner = new SafeRunner(res, routerURL);
+    await safeRunner.safeExecute(async () => {
         await PostDBUnit.unlike(postId as string, userId as string);
         res.redirect('/user/home');
     });
@@ -101,7 +101,8 @@ router.post('/subscribe', async (req: Request, res: Response) => {
         
     if (!(await validator.run())) return;
 
-    await validator.safeExecute(async () => {
+    const safeRunner = new SafeRunner(res, routerURL);
+    await safeRunner.safeExecute(async () => {
         await UserDBUnit.subscribe(userId as string, authorId as string)
         res.redirect('/user/home');
     });
@@ -119,7 +120,8 @@ router.post('/unsubscribe', async (req: Request, res: Response) => {
 
     if (!(await validator.run())) return;
 
-    await validator.safeExecute(async () => {
+    const safeRunner = new SafeRunner(res, routerURL);
+    await safeRunner.safeExecute(async () => {
         await UserDBUnit.unsubscribe(userId as string, authorId as string);
         res.redirect('/user/home');
     });
