@@ -53,6 +53,39 @@ router.get('/home', async (req: Request, res: Response) => {
     });
 });
 
+router.get('/profile', async (req: Request, res: Response) => {
+    const route = "GET /user/profile";
+    const userId = req.session.userId;
+
+    const validator = new Validator(res, route)
+        .addStep(new AuthenticatedCheck(userId))
+        .addStep(new UserExistsByIdCheck(userId));
+
+    if (!(await validator.run())) return;
+
+    const user = await UserDBUnit.findById(userId as string) as IUser;
+    const myPostsRaw = user.role === new AuthorType().getRole() ? await PostDBUnit.getAllByAuthor(user.id.toString()) : [];
+
+    const mapPost = (post: IPost) => {
+        const isLiked = post.likes.some(id => user.id.toString());
+        return {
+            id: post.id,
+            title: post.title[post.version],
+            content: post.content[post.version],
+            authorName: user.username,
+            authorId: user.id.toString(),
+            likeCount: post.likes.length,
+            isSubscribed: true,
+            isLiked
+        };
+    };
+
+    res.render('profile', {
+        user: {id: user.id.toString(), username: user.username, role: user.role},
+        myPosts: myPostsRaw.map(mapPost),
+    });
+});
+
 router.post('/like', async (req: Request, res: Response) => {
     const routerURL = "GET /user/like";
     const {postId} = req.body;

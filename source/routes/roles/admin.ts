@@ -27,7 +27,6 @@ router.post('/deleteUser', async (req: Request, res: Response) => {
     const safeRunner = new SafeRunner(res, routerURL);
     await safeRunner.safeExecute(async () => {
         await UserDBUnit.deleteById(userId);
-        res.redirect('/user/home');
     });
 });
 

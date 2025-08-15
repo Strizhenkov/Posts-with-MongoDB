@@ -17,6 +17,11 @@ export class PostUnit extends DBUnit<IPost> {
         return await Post.find({author: {$in: authorIds}}).sort({_id: -1}).limit(limit);
     }
 
+    public async getAllByAuthor(authorId: string): Promise<IPost[]> {
+        const aId = new Types.ObjectId(authorId);
+        return await Post.find({author: aId}).sort({_id: -1});
+    }
+
     public async like(postId: string, userId: string) : Promise<IPost | null>  {
         const post = await this.findById(postId);
         if (!post) return null;

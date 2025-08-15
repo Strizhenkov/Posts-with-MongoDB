@@ -10,7 +10,8 @@
     </style>
 </head>
 <body>
-    <h1>Добро пожаловать, <%= user.username %> (id: <%= user.id %>)!</h1>
+    <h1>Главная страница</h1>
+    <h3>Добро пожаловать, <%= user.username %> (id: <%= user.id %>)!</h3>
 
     <div class="posts">
         <div class="postitem">
@@ -31,16 +32,8 @@
         </div>
     </div>
 
-    <% if (user.role === 'author') { %>
-        <a href="/author/createPost">
-            <button type="button">Создать пост</button>
-        </a>
-    <% } %>
-
-    <% if (user.role === 'admin') { %>
-        <a href="/admin/deleteUser">
-            <button type="button">Удалить пользователя</button>
-        </a>
-    <% } %>
+    <a href="/user/profile">
+        <button type="button">Личный кабинет</button>
+    </a>
 </body>
 </html>

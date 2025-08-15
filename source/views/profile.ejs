@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Профиль</title>
+    <style>
+        .postitem {max-width: 720px;}
+        .card {border: 4px solid #6b00d6; padding: 10px; margin: 10px 0;}
+    </style>
+</head>
+<body>
+    <h1>Личный кабинет</h1>
+    <h3>Добро пожаловать, <%= user.username %> (id: <%= user.id %>)!</h3>
+
+    <% if (user.role === 'author') { %>
+        <h2>Мои посты</h2>
+        <div class="postitem">
+            <% if ((myPosts || []).length === 0) { %>
+                <p>Постов пока нет.</p>
+            <% } %>
+            <% (myPosts || []).forEach(function(post){ %>
+                <%- include('parts/postCard', { post: post, user: user }) %>
+            <% }); %>
+        </div>
+        <p>
+            <a href="/author/createPost">
+                <button type="button">Создать пост</button>
+            </a>
+        </p>
+    <% } %>
+
+    <% if (user.role === 'admin') { %>
+        <h2>Админ‑панель</h2>
+        <a href="/admin/deleteUser">
+            <button type="button">Удалить пользователя</button>
+        </a>
+    <% } %>
+
+    <% if (user.role !== 'author' && user.role !== 'admin') { %>
+        <p>В профиле специальных действий нет. Перейдите на <a href="/user/home">домашнюю</a> страницу.</p>
+    <% } %>
+
+    <a href="/user/home">Назад</a>
+</body>
+</html>

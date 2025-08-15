@@ -38,7 +38,6 @@ router.post('/createPost', async (req: Request, res: Response) => {
     const safeRunner = new SafeRunner(res, routerURL);
     await safeRunner.safeExecute(async () => {
         await PostDBUnit.create(newPost);
-        res.redirect('/user/home');
     });
 });
 
@@ -88,7 +87,6 @@ router.post('/editPost', async (req: Request, res: Response) => {
     await safeRunner.safeExecute(async () => {
         await PostDBUnit.appendRevision(postId as string, userId as string, title, content);
     });
-    res.redirect('/user/home');
 });
 
 export default router;
