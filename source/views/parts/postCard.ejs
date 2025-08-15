@@ -18,6 +18,13 @@
         <% } %>
     <% } %>
 
+    <% if (user.role === 'author' && user.id === post.authorId) { %>
+        <form action="/author/editPost" method="GET" style="display:inline;">
+            <input type="hidden" name="postId" value="<%= post.id %>">
+            <button type="submit">Редактировать</button>
+        </form>
+    <% } %>
+
     <form action="<%= post.isLiked ? '/user/unlike' : '/user/like' %>" method="POST" style="display:inline;">
         <input type="hidden" name="postId" value="<%= post.id %>">
         <button type="submit"><%= post.isLiked ? 'Убрать лайк' : 'Поставить лайк' %></button>

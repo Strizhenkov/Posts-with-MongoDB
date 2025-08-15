@@ -38,6 +38,22 @@ export class PostUnit extends DBUnit<IPost> {
         await post.save();
         return post;
     }
+
+    public async appendRevision(postId: string, editorUserId: string, title: string, content: string): Promise<IPost | null> {
+        const post = await this.findById(postId);
+        if (!post) return null;
+
+        if (post.author.toString() !== editorUserId) {
+            return null;
+        }
+
+        post.title.push(title);
+        post.content.push(content);
+        post.version = post.title.length - 1;
+        await post.save();
+
+        return post;
+    }
 }
 
 export const PostDBUnit = new PostUnit();

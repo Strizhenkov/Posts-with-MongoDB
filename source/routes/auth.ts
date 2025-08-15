@@ -4,7 +4,7 @@ import {Validator} from "../utiles/validator.ts";
 import {USER_ROLE_VALUES, UserType} from "../model/helpers/roles.ts";
 import {UserDBUnit} from "../model/dbUnits/userUnit.ts";
 import {PasswordMatchCheck, UserExistsByNameCheck} from "../utiles/validationSteps/validationConfig.ts";
-import { SafeRunner } from "../utiles/safeRunner.ts";
+import {SafeRunner} from "../utiles/safeRunner.ts";
 
 const router = Router();
 

@@ -18,7 +18,8 @@ router.post('/deleteUser', async (req: Request, res: Response) => {
 
     const validator = new Validator(res, routerURL)
         .addStep(new AuthenticatedCheck(adminId))
-        .addStep(new UserRoleValidCheck(adminId, new AdminType().getRole()))
+        .addStep(new UserExistsByIdCheck(adminId))
+        .addStep(new UserRoleValidCheck(adminId as string, new AdminType().getRole()))
         .addStep(new UserExistsByIdCheck(userId));
 
     if (!(await validator.run())) return;

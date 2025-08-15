@@ -4,9 +4,13 @@ import {IValidationStep} from "./iValidationStep.ts";
 import {PostDBUnit} from "../../model/dbUnits/postUnit.ts";
 
 export class PostExistsCheck implements IValidationStep {
-    public constructor(private postId: string) {}
+    public constructor(private postId: string | undefined) {}
 
     public async execute(res: Response, route: string, errorHandler: ErrorHandler): Promise<boolean> {
+        if (this.postId == undefined) {
+            errorHandler.handle(res, 400, route, "Uncorrect postId");
+            return false;
+        }
         const post = await PostDBUnit.findById(this.postId);
         if (!post) {
             errorHandler.handle(res, 404, route, "Post not found");

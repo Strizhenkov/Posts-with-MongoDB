@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактировать пост</title>
+</head>
+<body>
+    <h2>Редактировать пост</h2>
+    <p>Текущая версия: <%= post.version %></p>
+
+    <form action="/author/editPost" method="POST">
+        <input type="hidden" name="postId" value="<%= post.id %>">
+
+        <label>Новый заголовок:</label><br>
+        <input type="text" name="title" required placeholder="Новый заголовок"><br><br>
+
+        <label>Новый контент:</label><br>
+        <textarea name="content" required placeholder="Новый контент"></textarea><br><br>
+
+        <button type="submit">Сохранить новую редакцию</button>
+    </form>
+
+    <p>
+        <strong>Текущий заголовок:</strong> <%= currentTitle %><br>
+        <strong>Текущий контент:</strong> <%= currentContent %>
+    </p>
+
+    <a href="/user/home">Назад</a>
+</body>
+</html>

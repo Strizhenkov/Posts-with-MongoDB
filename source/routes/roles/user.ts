@@ -36,8 +36,8 @@ router.get('/home', async (req: Request, res: Response) => {
         const isLiked = post.likes.some((id: any) => id.toString() === currentUserId);
         return {
             id: post.id,
-            title: post.title,
-            content: post.content,
+            title: post.title[post.version],
+            content: post.content[post.version],
             authorName: authorMap.get(authorId),
             authorId,
             likeCount: post.likes.length,
