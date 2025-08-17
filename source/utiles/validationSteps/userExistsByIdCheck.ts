@@ -11,7 +11,9 @@ export class UserExistsByIdCheck implements IValidationStep {
             errorHandler.handle(res, 400, route, "Uncorrect userId");
             return false;
         }
+
         const user = await UserDBUnit.findById(this.userId);
+        
         if (!user) {
             errorHandler.handle(res, 404, route, "User not found");
             return false;

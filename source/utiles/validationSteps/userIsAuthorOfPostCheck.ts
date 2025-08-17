@@ -9,6 +9,7 @@ export class UserIsAuthorOfPostCheck implements IValidationStep {
 
     public async execute(res: Response, route: string, errorHandler: ErrorHandler): Promise<boolean> {
         const post = await PostDBUnit.findById(this.postId) as IPost;
+        
         if (post.author.toString() !== this.userId) {
             errorHandler.handle(res, 403, route, "User is not the author of this post");
             return false;

@@ -18,6 +18,13 @@
         <% } %>
     <% } %>
 
+    <% if (user.role === 'author' && user.id === post.authorId || user.role === 'admin') { %>
+        <form action="/author/versions" method="GET" style="display:inline;">
+            <input type="hidden" name="postId" value="<%= post.id %>">
+            <button type="submit">Версии</button>
+        </form>
+    <% } %>
+
     <% if (user.role === 'author' && user.id === post.authorId) { %>
         <form action="/author/editPost" method="GET" style="display:inline;">
             <input type="hidden" name="postId" value="<%= post.id %>">

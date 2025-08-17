@@ -11,7 +11,9 @@ export class PostExistsCheck implements IValidationStep {
             errorHandler.handle(res, 400, route, "Uncorrect postId");
             return false;
         }
+        
         const post = await PostDBUnit.findById(this.postId);
+
         if (!post) {
             errorHandler.handle(res, 404, route, "Post not found");
             return false;

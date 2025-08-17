@@ -2,7 +2,7 @@ import {Router, Request, Response} from "express";
 import Post, {IPost} from "../../model/entities/post.ts";
 import {Validator} from "../../utiles/validator.ts";
 import {AuthorType} from "../../model/helpers/roles.ts";
-import {AuthenticatedCheck, PostExistsCheck, UserExistsByIdCheck, UserRoleValidCheck, UserIsAuthorOfPostCheck} from "../../utiles/validationSteps/validationConfig.ts";
+import {AuthenticatedCheck, PostExistsCheck, UserExistsByIdCheck, UserRoleValidCheck, UserIsAuthorOfPostCheck, UserIsAuthorOfPostOrAdminCheck} from "../../utiles/validationSteps/validationConfig.ts";
 import {UserDBUnit} from "../../model/dbUnits/userUnit.ts";
 import {PostDBUnit} from "../../model/dbUnits/postUnit.ts";
 import {SafeRunner} from "../../utiles/safeRunner.ts";
@@ -86,6 +86,46 @@ router.post('/editPost', async (req: Request, res: Response) => {
     const safeRunner = new SafeRunner(res, routerURL);
     await safeRunner.safeExecute(async () => {
         await PostDBUnit.appendRevision(postId as string, userId as string, title, content);
+    });
+});
+
+router.get('/versions', async (req: Request, res: Response) => {
+    const routerURL = "GET /author/versions";
+    const userId = req.session.userId;
+    const {postId} = req.query as {postId?: string};
+
+    const validator = new Validator(res, routerURL)
+        .addStep(new AuthenticatedCheck(userId))
+        .addStep(new UserExistsByIdCheck(userId))
+        .addStep(new PostExistsCheck(postId))
+        .addStep(new UserIsAuthorOfPostOrAdminCheck(userId as string, postId as string));
+
+    if (!(await validator.run())) return;
+
+    const safeRunner = new SafeRunner(res, routerURL);
+    await safeRunner.safeExecute(async () => {
+        const post = await PostDBUnit.findById(postId as string) as IPost;
+        res.render('versions', {post});
+    });
+});
+
+router.post('/swapVersion', async (req: Request, res: Response) => {
+    const routeURL = "POST /author/swapVersion";
+    const userId = req.session.userId;
+    const {postId, versionIndex} = req.body as {postId?: string; versionIndex: string};
+
+    const validator = new Validator(res, routeURL)
+        .addStep(new AuthenticatedCheck(userId))
+        .addStep(new UserExistsByIdCheck(userId))
+        .addStep(new PostExistsCheck(postId))
+        .addStep(new UserIsAuthorOfPostOrAdminCheck(userId as string, postId as string));
+
+    if (!(await validator.run())) return;
+
+    const safeRunner = new SafeRunner(res, routeURL);
+    await safeRunner.safeExecute(async () => {
+        await PostDBUnit.swapVersion(postId as string, Number(versionIndex));
+        res.redirect('/user/home');
     });
 });
 

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Редакции поста</title>
+    <style>
+        .rev {border: 1px solid #ccc; margin: 8px 0; padding: 8px;}
+        .idx {font-weight: bold;}
+    </style>
+</head>
+<body>
+    <h1>Редакции поста: <%= post.title %></h1>
+    <p>Текущая версия: <%= post.version %></p>
+
+    <% for (let i = 0; i < post.title.length; i++) { %>
+        <div class="rev">
+            <div class="idx">Версия #<%= i %> <%= i === post.version ? '(текущая)' : '' %></div>
+            <div><strong>Заголовок:</strong> <%= post.title[i] %></div>
+            <div><strong>Контент:</strong> <%= post.content[i] %></div>
+
+            <% if (i !== post.version) { %>
+                <form action="/author/swapVersion" method="POST">
+                    <input type="hidden" name="postId" value="<%= post.id %>">
+                    <input type="hidden" name="versionIndex" value="<%= i %>">
+                    <button type="submit">Сделать текущей</button>
+                </form>
+            <% } %>
+        </div>
+    <% } %>
+
+    <p><a href="/user/home">Назад</a></p>
+</body>
+</html>

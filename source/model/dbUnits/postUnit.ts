@@ -31,6 +31,7 @@ export class PostUnit extends DBUnit<IPost> {
             post.likes.push(userObjId);
             await post.save();
         }
+
         return post;
     }
 
@@ -40,6 +41,7 @@ export class PostUnit extends DBUnit<IPost> {
 
         const userObjId = new Types.ObjectId(userId);
         post.likes = post.likes.filter((id: Types.ObjectId) => !id.equals(userObjId));
+
         await post.save();
         return post;
     }
@@ -55,10 +57,30 @@ export class PostUnit extends DBUnit<IPost> {
         post.title.push(title);
         post.content.push(content);
         post.version = post.title.length - 1;
-        await post.save();
 
+        await post.save();
+        return post;
+    }
+
+    public async swapVersion(postId: string, versionIndex: number): Promise<IPost | null> {
+        const post = await this.findById(postId);
+        if (!post) return null;
+
+        if (versionIndex < 0 || versionIndex >= post.title.length) {
+            return null;
+        }
+
+        const newTitle = post.title[versionIndex];
+        const newContent = post.content[versionIndex];
+
+        post.title.push(newTitle);
+        post.content.push(newContent);
+        post.version = post.title.length - 1;
+
+        await post.save();
         return post;
     }
 }
+
 
 export const PostDBUnit = new PostUnit();

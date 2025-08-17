@@ -8,6 +8,7 @@ export class UserExistsByNameCheck implements IValidationStep {
 
     public async execute(res: Response, route: string, errorHandler: ErrorHandler): Promise<boolean> {
         const user = await UserDBUnit.findByUsername(this.username);
+        
         if (!user) {
             errorHandler.handle(res, 404, route, "User not found");
             return false;
