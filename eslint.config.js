@@ -12,7 +12,7 @@ export default [
     js.configs.recommended,
 
     {
-        files: ['source/**/*.{ts,tsx}'],
+        files: ['source/**/*.ts'],
 
         languageOptions: {
             parser: tsParser,
