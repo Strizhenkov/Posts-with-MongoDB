@@ -1,12 +1,14 @@
-import {Router, Request, Response} from "express";
-import Post, {IPost} from "../../model/entities/post.ts";
-import {Validator} from "../../utiles/validator.ts";
-import {AuthorType} from "../../model/helpers/roles.ts";
-import {AuthenticatedCheck, PostExistsCheck, UserExistsByIdCheck, UserRoleValidCheck, UserIsAuthorOfPostCheck, UserIsAuthorOfPostOrAdminCheck} from "../../utiles/validationSteps/validationConfig.ts";
-import {UserDBUnit} from "../../model/dbUnits/userUnit.ts";
-import {PostDBUnit} from "../../model/dbUnits/postUnit.ts";
-import {SafeRunner} from "../../utiles/safeRunner.ts";
-import {IUser} from "../../model/entities/user.ts";
+import {Router} from 'express';
+import {PostDBUnit} from '../../model/dbUnits/postUnit.ts';
+import {UserDBUnit} from '../../model/dbUnits/userUnit.ts';
+import Post from '../../model/entities/post.ts';
+import {AuthorType} from '../../model/helpers/roles.ts';
+import {SafeRunner} from '../../utiles/safeRunner.ts';
+import {AuthenticatedCheck, PostExistsCheck, UserExistsByIdCheck, UserRoleValidCheck, UserIsAuthorOfPostCheck, UserIsAuthorOfPostOrAdminCheck} from '../../utiles/validationSteps/validationConfig.ts';
+import {Validator} from '../../utiles/validator.ts';
+import type {IPost} from '../../model/entities/post.ts';
+import type {IUser} from '../../model/entities/user.ts';
+import type {Request, Response} from 'express';
 
 const router = Router();
 
@@ -15,25 +17,25 @@ router.get('/createPost', (req: Request, res: Response) => {
 });
 
 router.post('/createPost', async (req: Request, res: Response) => {
-    const routerURL = "POST /author/createPost";
+    const routerURL = 'POST /author/createPost';
     const {title, content} = req.body;
     const userId = req.session.userId;
-    
+
     const validator = new Validator(res, routerURL)
-            .addStep(new AuthenticatedCheck(userId))
-            .addStep(new UserExistsByIdCheck(userId))
-            .addStep(new UserRoleValidCheck(userId as string, new AuthorType().getRole()));
+        .addStep(new AuthenticatedCheck(userId))
+        .addStep(new UserExistsByIdCheck(userId))
+        .addStep(new UserRoleValidCheck(userId as string, new AuthorType().getRole()));
 
     if (!(await validator.run())) return;
 
     const user = await UserDBUnit.findById(userId as string) as IUser;
     const newPost = new Post({
-            title:   [title],
-            content: [content],
-            version: 0,
-            author:  user.id,
-            likes:   []
-        });
+        title:   [title],
+        content: [content],
+        version: 0,
+        author:  user.id,
+        likes:   []
+    });
 
     const safeRunner = new SafeRunner(res, routerURL);
     await safeRunner.safeExecute(async () => {
@@ -42,16 +44,16 @@ router.post('/createPost', async (req: Request, res: Response) => {
 });
 
 router.get('/editPost', async (req: Request, res: Response) => {
-    const routerURL = "GET /author/editPost";
+    const routerURL = 'GET /author/editPost';
     const userId = req.session.userId;
     const {postId} = req.query as {postId?: string};
 
     const validator = new Validator(res, routerURL)
-            .addStep(new AuthenticatedCheck(userId))
-            .addStep(new UserExistsByIdCheck(userId))
-            .addStep(new UserRoleValidCheck(userId as string, new AuthorType().getRole()))
-            .addStep(new PostExistsCheck(postId))
-            .addStep(new UserIsAuthorOfPostCheck(userId as string, postId as string));
+        .addStep(new AuthenticatedCheck(userId))
+        .addStep(new UserExistsByIdCheck(userId))
+        .addStep(new UserRoleValidCheck(userId as string, new AuthorType().getRole()))
+        .addStep(new PostExistsCheck(postId))
+        .addStep(new UserIsAuthorOfPostCheck(userId as string, postId as string));
 
     if (!(await validator.run())) return;
 
@@ -70,16 +72,16 @@ router.get('/editPost', async (req: Request, res: Response) => {
 });
 
 router.post('/editPost', async (req: Request, res: Response) => {
-    const routerURL = "Post /author/editPost";
+    const routerURL = 'Post /author/editPost';
     const userId = req.session.userId;
     const {postId, title, content} = req.body as {postId?: string; title: string; content: string;};
 
     const validator = new Validator(res, routerURL)
-            .addStep(new AuthenticatedCheck(userId))
-            .addStep(new UserExistsByIdCheck(userId))
-            .addStep(new UserRoleValidCheck(userId as string, new AuthorType().getRole()))
-            .addStep(new PostExistsCheck(postId))
-            .addStep(new UserIsAuthorOfPostCheck(userId as string, postId as string));
+        .addStep(new AuthenticatedCheck(userId))
+        .addStep(new UserExistsByIdCheck(userId))
+        .addStep(new UserRoleValidCheck(userId as string, new AuthorType().getRole()))
+        .addStep(new PostExistsCheck(postId))
+        .addStep(new UserIsAuthorOfPostCheck(userId as string, postId as string));
 
     if (!(await validator.run())) return;
 
@@ -90,7 +92,7 @@ router.post('/editPost', async (req: Request, res: Response) => {
 });
 
 router.get('/versions', async (req: Request, res: Response) => {
-    const routerURL = "GET /author/versions";
+    const routerURL = 'GET /author/versions';
     const userId = req.session.userId;
     const {postId} = req.query as {postId?: string};
 
@@ -110,7 +112,7 @@ router.get('/versions', async (req: Request, res: Response) => {
 });
 
 router.post('/swapVersion', async (req: Request, res: Response) => {
-    const routeURL = "POST /author/swapVersion";
+    const routeURL = 'POST /author/swapVersion';
     const userId = req.session.userId;
     const {postId, versionIndex} = req.body as {postId?: string; versionIndex: string};
 

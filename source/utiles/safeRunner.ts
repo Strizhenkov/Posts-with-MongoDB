@@ -1,16 +1,20 @@
-import {Response} from 'express';
 import {ErrorHandler} from './errorHandler.ts';
+import type {Response} from 'express';
 
 export class SafeRunner {
     private _errorHandler = new ErrorHandler();
 
-    public constructor(private res: Response, private route: string) {}
+    constructor(private res: Response, private route: string) {}
 
     public async safeExecute<T>(action: () => Promise<T>): Promise<T | void> {
         try {
             return await action();
-        } catch (err: any) {
-            this._errorHandler.handle(this.res, 500, this.route, err.message);
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                this._errorHandler.handle(this.res, 500, this.route, err.message);
+            } else {
+                this._errorHandler.handle(this.res, 500, this.route, 'Unknown error');
+            }
         }
     }
 }

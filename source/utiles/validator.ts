@@ -1,12 +1,12 @@
-import {Response} from 'express';
 import {ErrorHandler} from './errorHandler.ts';
-import {IValidationStep} from './validationSteps/iValidationStep.ts';
+import type {IValidationStep} from './validationSteps/iValidationStep.ts';
+import type {Response} from 'express';
 
 export class Validator {
     private _steps: IValidationStep[] = [];
     private _errorHandler = new ErrorHandler();
 
-    public constructor(private res: Response, private route: string) {}
+    constructor(private res: Response, private route: string) {}
 
     public addStep(step: IValidationStep): Validator {
         this._steps.push(step);

@@ -1,18 +1,19 @@
-import {Types} from "mongoose";
-import Post, {IPost} from "../entities/post.ts";
-import {DBUnit} from "./dbUnit.ts";
+import {Types} from 'mongoose';
+import Post from '../entities/post.ts';
+import {DBUnit} from './dbUnit.ts';
+import type {IPost} from '../entities/post.ts';
 
 export class PostUnit extends DBUnit<IPost> {
-    public constructor() {
+    constructor() {
         super(Post);
     }
-    
+
     public async findRecent(limit = 5): Promise<IPost[]> {
         return await Post.find().sort({_id: -1}).limit(limit);
     }
 
     public async findRecentByAuthors(authorIds: string[], limit = 5): Promise<IPost[]> {
-        if (!authorIds.length) 
+        if (!authorIds.length)
             return [];
         return await Post.find({author: {$in: authorIds}}).sort({_id: -1}).limit(limit);
     }
@@ -81,6 +82,5 @@ export class PostUnit extends DBUnit<IPost> {
         return post;
     }
 }
-
 
 export const PostDBUnit = new PostUnit();

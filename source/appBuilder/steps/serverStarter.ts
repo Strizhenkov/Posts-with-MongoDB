@@ -1,8 +1,8 @@
 import fs from 'fs';
 import https from 'https';
-import {Express} from 'express';
 import dotenv from 'dotenv';
-import {IServerStep} from './iServerStep.ts';
+import type {IServerStep} from './iServerStep.ts';
+import type {Express} from 'express';
 
 dotenv.config();
 
@@ -19,6 +19,6 @@ export class ServerStarter implements IServerStep  {
         } catch (err) {
             console.error(`${stepIndex + 1}) Server startup failed:`, err);
             throw err;
-        }     
+        }
     }
 }

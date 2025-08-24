@@ -1,5 +1,6 @@
-import express, {Express} from 'express';
-import {IServerStep} from './iServerStep.ts';
+import express from 'express';
+import type {IServerStep} from './iServerStep.ts';
+import type {Express} from 'express';
 
 export class ViewConfigurator implements IServerStep  {
     public execute(app: Express, stepIndex: number): void {

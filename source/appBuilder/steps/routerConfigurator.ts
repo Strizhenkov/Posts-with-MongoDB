@@ -1,9 +1,9 @@
-import {Express} from 'express';
 import authRoutes from '../../routes/auth.ts';
-import userRoutes from '../../routes/roles/user.ts';
-import authorRoutes from '../../routes/roles/author.ts';
 import adminRoutes from '../../routes/roles/admin.ts';
-import {IServerStep} from './iServerStep.ts';
+import authorRoutes from '../../routes/roles/author.ts';
+import userRoutes from '../../routes/roles/user.ts';
+import type {IServerStep} from './iServerStep.ts';
+import type {Express} from 'express';
 
 export class RouterConfigurator implements IServerStep  {
     public execute(app: Express, stepIndex: number): void {

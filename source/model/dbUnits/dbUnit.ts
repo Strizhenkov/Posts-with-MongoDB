@@ -1,7 +1,8 @@
-import {Model, Document, Types} from "mongoose";
+import {Types} from 'mongoose';
+import type {Model, Document} from 'mongoose';
 
 export class DBUnit<T extends Document> {
-    public constructor(protected model: Model<T>) {}
+    constructor(protected model: Model<T>) {}
 
     public async create(data: Partial<T>) : Promise<T>{
         const doc = new this.model(data);
@@ -9,12 +10,14 @@ export class DBUnit<T extends Document> {
     }
 
     public async deleteById(id: string) : Promise<T | null> {
-        if (!id || !Types.ObjectId.isValid(id)) return null;
+        if (!id || !Types.ObjectId.isValid(id))
+            return null;
         return await this.model.findByIdAndDelete(id);
     }
 
     public async findById(id: string) : Promise<T | null> {
-        if (!id || !Types.ObjectId.isValid(id)) return null;
+        if (!id || !Types.ObjectId.isValid(id))
+            return null;
         return await this.model.findById(id);
     }
 

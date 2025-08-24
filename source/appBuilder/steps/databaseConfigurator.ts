@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
-import {IServerStep} from './iServerStep.ts';
-import {Express} from 'express';
+import type {IServerStep} from './iServerStep.ts';
+import type {Express} from 'express';
 
 export class DatabaseConfigurator implements IServerStep {
     public async execute(_: Express, stepIndex: number): Promise<void> {

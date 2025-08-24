@@ -1,9 +1,10 @@
-import {Types} from "mongoose";
-import User, {IUser} from "../entities/user.ts";
-import {DBUnit} from "./dbUnit.ts";
+import {Types} from 'mongoose';
+import User from '../entities/user.ts';
+import {DBUnit} from './dbUnit.ts';
+import type {IUser} from '../entities/user.ts';
 
 export class UserUnit extends DBUnit<IUser> {
-    public constructor() {
+    constructor() {
         super(User);
     }
 
@@ -12,15 +13,23 @@ export class UserUnit extends DBUnit<IUser> {
     }
 
     private normalizeRole(user: IUser): void {
-        if (typeof user.role === "string") return;
-        const anyRole = user.role as any;
-        if (anyRole?.getRole && typeof anyRole.getRole === "function") {
-            user.role = anyRole.getRole();
-        } else if (typeof anyRole?.value === "string") {
-            user.role = anyRole.value;
-        } else {
-            user.role = String(anyRole);
+        if (typeof user.role === 'string') {
+            return;
         }
+
+        const roleWithMethod = user.role as Partial<{getRole: () => string}>;
+        if (roleWithMethod.getRole && typeof roleWithMethod.getRole === 'function') {
+            user.role = roleWithMethod.getRole();
+            return;
+        }
+
+        const roleWithValue = user.role as Partial<{value: string}>;
+        if (typeof roleWithValue.value === 'string') {
+            user.role = roleWithValue.value;
+            return;
+        }
+
+        user.role = String(user.role);
     }
 
     public async subscribe(userId: string, authorId: string) : Promise<IUser | null>  {

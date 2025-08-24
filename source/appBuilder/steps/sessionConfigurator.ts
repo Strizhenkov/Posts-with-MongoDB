@@ -1,8 +1,8 @@
-import session from 'express-session';
 import MongoStore from 'connect-mongo';
-import {Express} from 'express';
 import dotenv from 'dotenv';
-import {IServerStep} from './iServerStep.ts';
+import session from 'express-session';
+import type {IServerStep} from './iServerStep.ts';
+import type {Express} from 'express';
 
 dotenv.config();
 

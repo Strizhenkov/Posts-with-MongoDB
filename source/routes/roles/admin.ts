@@ -1,9 +1,10 @@
-import {Router, Request, Response} from "express";
-import {Validator} from "../../utiles/validator.ts";
-import {AdminType} from "../../model/helpers/roles.ts";
-import {AuthenticatedCheck, UserRoleValidCheck, UserExistsByIdCheck} from "../../utiles/validationSteps/validationConfig.ts";
-import {UserDBUnit} from "../../model/dbUnits/userUnit.ts";
-import {SafeRunner} from "../../utiles/safeRunner.ts";
+import {Router} from 'express';
+import {UserDBUnit} from '../../model/dbUnits/userUnit.ts';
+import {AdminType} from '../../model/helpers/roles.ts';
+import {SafeRunner} from '../../utiles/safeRunner.ts';
+import {AuthenticatedCheck, UserRoleValidCheck, UserExistsByIdCheck} from '../../utiles/validationSteps/validationConfig.ts';
+import {Validator} from '../../utiles/validator.ts';
+import type {Request, Response} from 'express';
 
 const router = Router();
 
@@ -12,7 +13,7 @@ router.get('/deleteUser', (req: Request, res: Response) => {
 });
 
 router.post('/deleteUser', async (req: Request, res: Response) => {
-    const routerURL = "DELETE /admin/deleteUser";
+    const routerURL = 'DELETE /admin/deleteUser';
     const {userId} = req.body;
     const adminId = req.session.userId;
 

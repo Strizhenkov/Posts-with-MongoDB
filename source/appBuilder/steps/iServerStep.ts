@@ -1,4 +1,4 @@
-import {Express} from 'express';
+import type {Express} from 'express';
 
 export interface IServerStep {
     execute(app: Express, stepIndex: number): Promise<void> | void;

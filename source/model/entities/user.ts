@@ -1,6 +1,7 @@
-import mongoose, {Document, Schema, Types} from "mongoose";
-import bcrypt from "bcrypt";
-import {createRoleFromString, USER_ROLE_VALUES, UserType} from "../helpers/roles.ts";
+import bcrypt from 'bcrypt';
+import mongoose, {Schema} from 'mongoose';
+import {USER_ROLE_VALUES, UserType} from '../helpers/roles.ts';
+import type {Document, Types} from 'mongoose';
 
 export interface IUser extends Document {
     username : string;
@@ -17,21 +18,21 @@ const UserSchema = new Schema<IUser> ({
     subscriptions: [
         {
             type: Schema.Types.ObjectId,
-            ref: "User",
-            default: [],
-        },
-    ],
+            ref: 'User',
+            default: []
+        }
+    ]
 });
 
-UserSchema.pre<IUser>("save", async function(next) {
-    if (!this.isModified("password"))
+UserSchema.pre<IUser>('save', async function(next) {
+    if (!this.isModified('password'))
         return next();
     try {
         const salt = await bcrypt.genSalt(10);
         this.password = await bcrypt.hash(this.password, salt);
         next();
     } catch (err) {
-        next(err as any);
+        next(err as Error);
     }
 });
 
@@ -39,11 +40,11 @@ UserSchema.methods.comparePassword = async function (password : string) : Promis
     return await bcrypt.compare(password.trim(), this.password);
 };
 
-UserSchema.virtual("id").get(function (this: {_id: Types.ObjectId}) {
+UserSchema.virtual('id').get(function (this: {_id: Types.ObjectId}) {
     return this._id.toString();
 });
 
-UserSchema.set("toObject", {virtuals: true});
-UserSchema.set("toJSON",   {virtuals: true});
+UserSchema.set('toObject', {virtuals: true});
+UserSchema.set('toJSON',   {virtuals: true});
 
-export default mongoose.model<IUser>("User", UserSchema);
+export default mongoose.model<IUser>('User', UserSchema);

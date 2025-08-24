@@ -1,17 +1,19 @@
-import {Router, Request, Response} from "express";
-import {IUser} from "../../model/entities/user.ts";
-import {Validator} from "../../utiles/validator.ts";
-import {AuthorType} from "../../model/helpers/roles.ts";
-import {AuthenticatedCheck, UserRoleValidCheck, UserExistsByIdCheck, PostExistsCheck} from "../../utiles/validationSteps/validationConfig.ts";
-import {UserDBUnit} from "../../model/dbUnits/userUnit.ts";
-import {PostDBUnit} from "../../model/dbUnits/postUnit.ts";
-import {IPost} from "../../model/entities/post.ts";
-import {SafeRunner} from "../../utiles/safeRunner.ts";
+import {Router} from 'express';
+import {PostDBUnit} from '../../model/dbUnits/postUnit.ts';
+import {UserDBUnit} from '../../model/dbUnits/userUnit.ts';
+import {AuthorType} from '../../model/helpers/roles.ts';
+import {SafeRunner} from '../../utiles/safeRunner.ts';
+import {AuthenticatedCheck, UserRoleValidCheck, UserExistsByIdCheck, PostExistsCheck} from '../../utiles/validationSteps/validationConfig.ts';
+import {Validator} from '../../utiles/validator.ts';
+import type {IPost} from '../../model/entities/post.ts';
+import type {IUser} from '../../model/entities/user.ts';
+import type {Request, Response} from 'express';
+import type {Types} from 'mongoose';
 
 const router = Router();
 
 router.get('/home', async (req: Request, res: Response) => {
-    const routerURL = "GET /user/home";
+    const routerURL = 'GET /user/home';
     const userId = req.session.userId;
 
     const validator = new Validator(res, routerURL)
@@ -33,7 +35,7 @@ router.get('/home', async (req: Request, res: Response) => {
     const currentUserId = user.id.toString();
     const mapPost = (post: IPost) => {
         const authorId = post.author.toString();
-        const isLiked = post.likes.some((id: any) => id.toString() === currentUserId);
+        const isLiked = post.likes.some((id: Types.ObjectId) => id.toString() === currentUserId);
         return {
             id: post.id,
             title: post.title[post.version],
@@ -46,15 +48,15 @@ router.get('/home', async (req: Request, res: Response) => {
         };
     };
 
-    res.render("home", {
+    res.render('home', {
         user: {id: user.id.toString(), username: user.username, role: user.role},
         postsAll: postsAll.map(mapPost),
-        postsSubs: postsSubs.map(mapPost),
+        postsSubs: postsSubs.map(mapPost)
     });
 });
 
 router.get('/profile', async (req: Request, res: Response) => {
-    const route = "GET /user/profile";
+    const route = 'GET /user/profile';
     const userId = req.session.userId;
 
     const validator = new Validator(res, route)
@@ -67,7 +69,7 @@ router.get('/profile', async (req: Request, res: Response) => {
     const myPostsRaw = user.role === new AuthorType().getRole() ? await PostDBUnit.getAllByAuthor(user.id.toString()) : [];
 
     const mapPost = (post: IPost) => {
-        const isLiked = post.likes.some(id => user.id.toString());
+        const isLiked = post.likes.some((id: Types.ObjectId) => id.toString() === userId);
         return {
             id: post.id,
             title: post.title[post.version],
@@ -82,18 +84,18 @@ router.get('/profile', async (req: Request, res: Response) => {
 
     res.render('profile', {
         user: {id: user.id.toString(), username: user.username, role: user.role},
-        myPosts: myPostsRaw.map(mapPost),
+        myPosts: myPostsRaw.map(mapPost)
     });
 });
 
 router.post('/like', async (req: Request, res: Response) => {
-    const routerURL = "GET /user/like";
+    const routerURL = 'GET /user/like';
     const {postId} = req.body;
     const userId = req.session.userId;
 
     const validator = new Validator(res, routerURL)
         .addStep(new AuthenticatedCheck(userId))
-        .addStep(new PostExistsCheck(postId))
+        .addStep(new PostExistsCheck(postId));
 
     if (!(await validator.run())) return;
 
@@ -105,7 +107,7 @@ router.post('/like', async (req: Request, res: Response) => {
 });
 
 router.post('/unlike', async (req: Request, res: Response) => {
-    const routerURL = "POST /user/unlike";
+    const routerURL = 'POST /user/unlike';
     const {postId} = req.body;
     const userId = req.session.userId;
 
@@ -123,7 +125,7 @@ router.post('/unlike', async (req: Request, res: Response) => {
 });
 
 router.post('/subscribe', async (req: Request, res: Response) => {
-    const routerURL = "GET /user/subscribe";
+    const routerURL = 'GET /user/subscribe';
     const userId = req.session.userId;
     const {authorId} = req.body;
 
@@ -131,18 +133,18 @@ router.post('/subscribe', async (req: Request, res: Response) => {
         .addStep(new AuthenticatedCheck(userId))
         .addStep(new UserExistsByIdCheck(userId))
         .addStep(new UserRoleValidCheck(authorId, new AuthorType().getRole()));
-        
+
     if (!(await validator.run())) return;
 
     const safeRunner = new SafeRunner(res, routerURL);
     await safeRunner.safeExecute(async () => {
-        await UserDBUnit.subscribe(userId as string, authorId as string)
+        await UserDBUnit.subscribe(userId as string, authorId as string);
         res.redirect('/user/home');
     });
 });
 
 router.post('/unsubscribe', async (req: Request, res: Response) => {
-    const routerURL = "POST /user/unsubscribe";
+    const routerURL = 'POST /user/unsubscribe';
     const userId = req.session.userId;
     const {authorId} = req.body;
 

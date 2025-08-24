@@ -5,7 +5,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node-esm source/index.ts"
+    "start": "ts-node-esm source/index.ts",
+    "lint": "eslint \"source/**/*.{ts,tsx}\"",
+    "lint:fix": "eslint \"source/**/*.{ts,tsx}\" --fix"
   },
   "keywords": [],
   "author": "",
@@ -22,11 +24,19 @@
     "mongoose": "^8.16.4"
   },
   "devDependencies": {
+    "@eslint/js": "^9.34.0",
     "@types/bcrypt": "^5.0.2",
     "@types/express": "^5.0.3",
     "@types/express-session": "^1.18.2",
-    "@types/node": "^24.0.14",
+    "@types/node": "^24.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.40.0",
+    "@typescript-eslint/parser": "^8.40.0",
+    "eslint": "^9.34.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-unused-imports": "^4.2.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.40.0"
   }
 }

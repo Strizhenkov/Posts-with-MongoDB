@@ -1,10 +1,12 @@
-import {Router, Request, Response} from "express";
-import User, {IUser} from "../model/entities/user.ts";
-import {Validator} from "../utiles/validator.ts";
-import {USER_ROLE_VALUES, UserType} from "../model/helpers/roles.ts";
-import {UserDBUnit} from "../model/dbUnits/userUnit.ts";
-import {PasswordMatchCheck, UserExistsByNameCheck} from "../utiles/validationSteps/validationConfig.ts";
-import {SafeRunner} from "../utiles/safeRunner.ts";
+import {Router} from 'express';
+import {UserDBUnit} from '../model/dbUnits/userUnit.ts';
+import User from '../model/entities/user.ts';
+import {USER_ROLE_VALUES, UserType} from '../model/helpers/roles.ts';
+import {SafeRunner} from '../utiles/safeRunner.ts';
+import {PasswordMatchCheck, UserExistsByNameCheck} from '../utiles/validationSteps/validationConfig.ts';
+import {Validator} from '../utiles/validator.ts';
+import type {IUser} from '../model/entities/user.ts';
+import type {Request, Response} from 'express';
 
 const router = Router();
 
@@ -17,10 +19,10 @@ router.get('/login', (req: Request, res: Response) => {
 });
 
 router.post('/register', async (req: Request, res: Response) => {
-    const routerURL = "POST /auth/register";
+    const routerURL = 'POST /auth/register';
     const {username, password, role} = req.body;
     const user = new User({username, password, role: USER_ROLE_VALUES.includes(role) ? role : new UserType().getRole()});
-    
+
     const safeRunner = new SafeRunner(res, routerURL);
     await safeRunner.safeExecute(async () => {
         await UserDBUnit.create(user);
@@ -30,7 +32,7 @@ router.post('/register', async (req: Request, res: Response) => {
 });
 
 router.post('/login', async (req: Request, res: Response) => {
-    const routerURL = "POST /auth/login";
+    const routerURL = 'POST /auth/login';
     const {username, password} = req.body;
 
     const validator = new Validator(res, routerURL)
