@@ -1,6 +1,6 @@
 <div class="card">
     <h3><%= post.title %></h3>
-    <p><%= post.content %></p>
+    <p style="white-space: pre-line;"><%= post.content %></p>
     <p><strong>Автор:</strong> <%= post.authorName %></p>
     <p><strong>Лайков:</strong> <%= post.likeCount %></p>
 
@@ -22,6 +22,23 @@
         <form action="/author/versions" method="GET" style="display:inline;">
             <input type="hidden" name="postId" value="<%= post.id %>">
             <button type="submit">Версии</button>
+        </form>
+
+        <form action="/author/compare" method="GET" style="display:inline; margin-left:10px;">
+            <input type="hidden" name="postId" value="<%= post.id %>">
+            <label>Версия №</label>
+            <select name="v1">
+                <% for (let i = 0; i < post.versionCount; i++) { %>
+                    <option value="<%= i %>"><%= i %></option>
+                <% } %>
+            </select>
+            <label>Версия №</label>
+            <select name="v2">
+                <% for (let i = 0; i < post.versionCount; i++) { %>
+                    <option value="<%= i %>"><%= i %></option>
+                <% } %>
+            </select>
+            <button type="submit">Сравнить</button>
         </form>
     <% } %>
 

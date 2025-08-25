@@ -36,6 +36,7 @@ export default [
             indent: ['error', 4, {SwitchCase: 1}],
             quotes: ['error', 'single', {avoidEscape: true}],
             semi: ['error', 'always'],
+            curly: ['error', 'all'],
             'no-trailing-spaces': 'error',
             'eol-last': ['error', 'never'],
             'no-multiple-empty-lines': ['error', {max: 1, maxEOF: 1}],

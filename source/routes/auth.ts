@@ -39,7 +39,7 @@ router.post('/login', async (req: Request, res: Response) => {
         .addStep(new UserExistsByNameCheck(username))
         .addStep(new PasswordMatchCheck(username, password));
 
-    if (!(await validator.run())) return;
+    if (!(await validator.run())) {return;}
 
     const user = await UserDBUnit.findByUsername(username) as IUser;
 

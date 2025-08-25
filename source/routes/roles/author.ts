@@ -3,8 +3,9 @@ import {PostDBUnit} from '../../model/dbUnits/postUnit.ts';
 import {UserDBUnit} from '../../model/dbUnits/userUnit.ts';
 import Post from '../../model/entities/post.ts';
 import {AuthorType} from '../../model/helpers/roles.ts';
+import {diffStringsHtml} from '../../utiles/compareText.ts';
 import {SafeRunner} from '../../utiles/safeRunner.ts';
-import {AuthenticatedCheck, PostExistsCheck, UserExistsByIdCheck, UserRoleValidCheck, UserIsAuthorOfPostCheck, UserIsAuthorOfPostOrAdminCheck} from '../../utiles/validationSteps/validationConfig.ts';
+import {AuthenticatedCheck, PostExistsCheck, UserExistsByIdCheck, UserRoleValidCheck, UserIsAuthorOfPostCheck, UserIsAuthorOfPostOrAdminCheck, VersionIndexValidCheck} from '../../utiles/validationSteps/validationConfig.ts';
 import {Validator} from '../../utiles/validator.ts';
 import type {IPost} from '../../model/entities/post.ts';
 import type {IUser} from '../../model/entities/user.ts';
@@ -26,7 +27,7 @@ router.post('/createPost', async (req: Request, res: Response) => {
         .addStep(new UserExistsByIdCheck(userId))
         .addStep(new UserRoleValidCheck(userId as string, new AuthorType().getRole()));
 
-    if (!(await validator.run())) return;
+    if (!(await validator.run())) {return;}
 
     const user = await UserDBUnit.findById(userId as string) as IUser;
     const newPost = new Post({
@@ -55,7 +56,7 @@ router.get('/editPost', async (req: Request, res: Response) => {
         .addStep(new PostExistsCheck(postId))
         .addStep(new UserIsAuthorOfPostCheck(userId as string, postId as string));
 
-    if (!(await validator.run())) return;
+    if (!(await validator.run())) {return;}
 
     const post = await PostDBUnit.findById(postId as string) as IPost;
     const currentTitle = post.title[post.version];
@@ -83,11 +84,11 @@ router.post('/editPost', async (req: Request, res: Response) => {
         .addStep(new PostExistsCheck(postId))
         .addStep(new UserIsAuthorOfPostCheck(userId as string, postId as string));
 
-    if (!(await validator.run())) return;
+    if (!(await validator.run())) {return;}
 
     const safeRunner = new SafeRunner(res, routerURL);
     await safeRunner.safeExecute(async () => {
-        await PostDBUnit.appendRevision(postId as string, userId as string, title, content);
+        await PostDBUnit.appendVersion(postId as string, userId as string, title, content);
     });
 });
 
@@ -102,7 +103,7 @@ router.get('/versions', async (req: Request, res: Response) => {
         .addStep(new PostExistsCheck(postId))
         .addStep(new UserIsAuthorOfPostOrAdminCheck(userId as string, postId as string));
 
-    if (!(await validator.run())) return;
+    if (!(await validator.run())) {return;}
 
     const safeRunner = new SafeRunner(res, routerURL);
     await safeRunner.safeExecute(async () => {
@@ -115,19 +116,58 @@ router.post('/swapVersion', async (req: Request, res: Response) => {
     const routeURL = 'POST /author/swapVersion';
     const userId = req.session.userId;
     const {postId, versionIndex} = req.body as {postId?: string; versionIndex: string};
+    const version = Number(versionIndex);
 
     const validator = new Validator(res, routeURL)
         .addStep(new AuthenticatedCheck(userId))
         .addStep(new UserExistsByIdCheck(userId))
         .addStep(new PostExistsCheck(postId))
+        .addStep(new VersionIndexValidCheck(postId as string, version))
         .addStep(new UserIsAuthorOfPostOrAdminCheck(userId as string, postId as string));
 
-    if (!(await validator.run())) return;
+    if (!(await validator.run())) {return;}
 
     const safeRunner = new SafeRunner(res, routeURL);
     await safeRunner.safeExecute(async () => {
-        await PostDBUnit.swapVersion(postId as string, Number(versionIndex));
+        await PostDBUnit.swapVersion(postId as string, version);
         res.redirect('/user/home');
+    });
+});
+
+router.get('/compare', async (req, res) => {
+    const routeURL = 'GET /author/compare';
+    const userId = req.session.userId;
+    const {postId, v1, v2} = req.query as {postId?: string; v1?: string; v2?: string};
+    const i1 = Number(v1), i2 = Number(v2);
+
+    const validator = new Validator(res, routeURL)
+        .addStep(new AuthenticatedCheck(userId))
+        .addStep(new UserExistsByIdCheck(userId))
+        .addStep(new PostExistsCheck(postId))
+        .addStep(new VersionIndexValidCheck(postId as string, i1))
+        .addStep(new VersionIndexValidCheck(postId as string, i2))
+        .addStep(new UserIsAuthorOfPostOrAdminCheck(userId as string, postId as string));
+
+    if (!(await validator.run())) {return;}
+
+    const safeRunner = new SafeRunner(res, routeURL);
+    await safeRunner.safeExecute(async () => {
+        const post = await PostDBUnit.findById(postId as string) as IPost;
+        const titleA = post.title[i1];
+        const titleB = post.title[i2];
+        const contentA = post.content[i1];
+        const contentB = post.content[i2];
+        const titleDiffHtml = diffStringsHtml(titleA, titleB);
+        const contentDiffHtml = diffStringsHtml(contentA, contentB);
+
+        res.render('compareVersions', {
+            postMeta: {id: post.id, current: post.version},
+            idxA: i1,
+            idxB: i2,
+            vCount: post.title.length,
+            titleDiffHtml,
+            contentDiffHtml
+        });
     });
 });
 

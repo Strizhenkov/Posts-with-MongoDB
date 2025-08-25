@@ -14,7 +14,7 @@ export class PostUnit extends DBUnit<IPost> {
 
     public async findRecentByAuthors(authorIds: string[], limit = 5): Promise<IPost[]> {
         if (!authorIds.length)
-            return [];
+        {return [];}
         return await Post.find({author: {$in: authorIds}}).sort({_id: -1}).limit(limit);
     }
 
@@ -25,7 +25,7 @@ export class PostUnit extends DBUnit<IPost> {
 
     public async like(postId: string, userId: string) : Promise<IPost | null>  {
         const post = await this.findById(postId);
-        if (!post) return null;
+        if (!post) {return null;}
 
         const userObjId = new Types.ObjectId(userId);
         if (!post.likes.some((id: Types.ObjectId) => id.equals(userObjId))) {
@@ -38,7 +38,7 @@ export class PostUnit extends DBUnit<IPost> {
 
     public async unlike(postId: string, userId: string) : Promise<IPost | null>  {
         const post = await this.findById(postId);
-        if (!post) return null;
+        if (!post) {return null;}
 
         const userObjId = new Types.ObjectId(userId);
         post.likes = post.likes.filter((id: Types.ObjectId) => !id.equals(userObjId));
@@ -47,9 +47,9 @@ export class PostUnit extends DBUnit<IPost> {
         return post;
     }
 
-    public async appendRevision(postId: string, editorUserId: string, title: string, content: string): Promise<IPost | null> {
+    public async appendVersion(postId: string, editorUserId: string, title: string, content: string): Promise<IPost | null> {
         const post = await this.findById(postId);
-        if (!post) return null;
+        if (!post) {return null;}
 
         if (post.author.toString() !== editorUserId) {
             return null;
@@ -65,7 +65,7 @@ export class PostUnit extends DBUnit<IPost> {
 
     public async swapVersion(postId: string, versionIndex: number): Promise<IPost | null> {
         const post = await this.findById(postId);
-        if (!post) return null;
+        if (!post) {return null;}
 
         if (versionIndex < 0 || versionIndex >= post.title.length) {
             return null;

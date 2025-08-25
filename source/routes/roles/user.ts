@@ -20,7 +20,7 @@ router.get('/home', async (req: Request, res: Response) => {
         .addStep(new AuthenticatedCheck(userId))
         .addStep(new UserExistsByIdCheck(userId));
 
-    if (!(await validator.run())) return;
+    if (!(await validator.run())) {return;}
 
     const user = await UserDBUnit.findById(userId as string) as IUser;
     const postsAll = await PostDBUnit.findRecent(5);
@@ -40,6 +40,7 @@ router.get('/home', async (req: Request, res: Response) => {
             id: post.id,
             title: post.title[post.version],
             content: post.content[post.version],
+            versionCount: post.title.length,
             authorName: authorMap.get(authorId),
             authorId,
             likeCount: post.likes.length,
@@ -63,7 +64,7 @@ router.get('/profile', async (req: Request, res: Response) => {
         .addStep(new AuthenticatedCheck(userId))
         .addStep(new UserExistsByIdCheck(userId));
 
-    if (!(await validator.run())) return;
+    if (!(await validator.run())) {return;}
 
     const user = await UserDBUnit.findById(userId as string) as IUser;
     const myPostsRaw = user.role === new AuthorType().getRole() ? await PostDBUnit.getAllByAuthor(user.id.toString()) : [];
@@ -74,6 +75,7 @@ router.get('/profile', async (req: Request, res: Response) => {
             id: post.id,
             title: post.title[post.version],
             content: post.content[post.version],
+            versionCount: post.title.length,
             authorName: user.username,
             authorId: user.id.toString(),
             likeCount: post.likes.length,
@@ -97,7 +99,7 @@ router.post('/like', async (req: Request, res: Response) => {
         .addStep(new AuthenticatedCheck(userId))
         .addStep(new PostExistsCheck(postId));
 
-    if (!(await validator.run())) return;
+    if (!(await validator.run())) {return;}
 
     const safeRunner = new SafeRunner(res, routerURL);
     await safeRunner.safeExecute(async () => {
@@ -115,7 +117,7 @@ router.post('/unlike', async (req: Request, res: Response) => {
         .addStep(new AuthenticatedCheck(userId))
         .addStep(new PostExistsCheck(postId));
 
-    if (!(await validator.run())) return;
+    if (!(await validator.run())) {return;}
 
     const safeRunner = new SafeRunner(res, routerURL);
     await safeRunner.safeExecute(async () => {
@@ -134,7 +136,7 @@ router.post('/subscribe', async (req: Request, res: Response) => {
         .addStep(new UserExistsByIdCheck(userId))
         .addStep(new UserRoleValidCheck(authorId, new AuthorType().getRole()));
 
-    if (!(await validator.run())) return;
+    if (!(await validator.run())) {return;}
 
     const safeRunner = new SafeRunner(res, routerURL);
     await safeRunner.safeExecute(async () => {
@@ -153,7 +155,7 @@ router.post('/unsubscribe', async (req: Request, res: Response) => {
         .addStep(new UserExistsByIdCheck(userId))
         .addStep(new UserRoleValidCheck(authorId, new AuthorType().getRole()));
 
-    if (!(await validator.run())) return;
+    if (!(await validator.run())) {return;}
 
     const safeRunner = new SafeRunner(res, routerURL);
     await safeRunner.safeExecute(async () => {

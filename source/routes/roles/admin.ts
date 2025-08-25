@@ -23,7 +23,7 @@ router.post('/deleteUser', async (req: Request, res: Response) => {
         .addStep(new UserRoleValidCheck(adminId as string, new AdminType().getRole()))
         .addStep(new UserExistsByIdCheck(userId));
 
-    if (!(await validator.run())) return;
+    if (!(await validator.run())) {return;}
 
     const safeRunner = new SafeRunner(res, routerURL);
     await safeRunner.safeExecute(async () => {

@@ -34,7 +34,7 @@ export class UserUnit extends DBUnit<IUser> {
 
     public async subscribe(userId: string, authorId: string) : Promise<IUser | null>  {
         const user = await this.findById(userId);
-        if (!user) return null;
+        if (!user) {return null;}
 
         const authorObjId = new Types.ObjectId(authorId);
 
@@ -48,7 +48,7 @@ export class UserUnit extends DBUnit<IUser> {
 
     public async unsubscribe(userId: string, authorId: string) : Promise<IUser | null> {
         const user = await this.findById(userId);
-        if (!user) return null;
+        if (!user) {return null;}
 
         const authorObjId = new Types.ObjectId(authorId);
         user.subscriptions = user.subscriptions.filter((id: Types.ObjectId) => !id.equals(authorObjId));
@@ -59,7 +59,7 @@ export class UserUnit extends DBUnit<IUser> {
 
     public async isSubscribed(userId: string, authorId: string) : Promise<boolean>  {
         const user = await this.findById(userId);
-        if (!user) return false;
+        if (!user) {return false;}
 
         const authorObjId = new Types.ObjectId(authorId);
         return user.subscriptions.some((id: Types.ObjectId) => id.equals(authorObjId));

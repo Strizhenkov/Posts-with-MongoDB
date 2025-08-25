@@ -6,5 +6,6 @@ import {UserExistsByNameCheck} from './userExistsByNameCheck.ts';
 import {UserIsAuthorOfPostCheck} from './userIsAuthorOfPostCheck.ts';
 import {UserIsAuthorOfPostOrAdminCheck} from './userIsAuthorOfPostOrAdminCheck.ts';
 import {UserRoleValidCheck} from './userRoleValidCheck.ts';
+import {VersionIndexValidCheck} from './versionIndexValidCheck.ts';
 
-export {AuthenticatedCheck, PasswordMatchCheck, PostExistsCheck, UserExistsByIdCheck, UserExistsByNameCheck, UserRoleValidCheck, UserIsAuthorOfPostCheck, UserIsAuthorOfPostOrAdminCheck};
+export {AuthenticatedCheck, PasswordMatchCheck, PostExistsCheck, UserExistsByIdCheck, UserExistsByNameCheck, UserRoleValidCheck, UserIsAuthorOfPostCheck, UserIsAuthorOfPostOrAdminCheck, VersionIndexValidCheck};

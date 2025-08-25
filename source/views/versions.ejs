@@ -15,8 +15,9 @@
     <% for (let i = 0; i < post.title.length; i++) { %>
         <div class="rev">
             <div class="idx">Версия #<%= i %> <%= i === post.version ? '(текущая)' : '' %></div>
-            <div><strong>Заголовок:</strong> <%= post.title[i] %></div>
-            <div><strong>Контент:</strong> <%= post.content[i] %></div>
+            <div style="white-space: pre-line;"><strong>Заголовок:</strong> <%= post.title[i] %></div>
+            <div style="white-space: pre-line;"><strong>Контент:
+            </strong> <%= post.content[i] %></div>
 
             <% if (i !== post.version) { %>
                 <form action="/author/swapVersion" method="POST">

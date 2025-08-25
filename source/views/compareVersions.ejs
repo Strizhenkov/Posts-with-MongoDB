@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Сравнение версий</title>
+    <style>
+        .ins {background: whitesmoke; color: green;} 
+        .del {background: whitesmoke; color: red;}
+        .diff-block {border: 1px solid #ccc; padding: 12px; margin: 10px 0;}
+        .meta {color: #555; margin-bottom: 6px;}
+        pre {white-space: pre-wrap; word-wrap: break-word; margin: 0;}
+    </style>
+</head>
+<body>
+    <h1>Сравнение версий #<%= idxA %> ↔ #<%= idxB %></h1>
+    <div class="meta">Пост: <%= postMeta.id %> (текущая версия: <%= postMeta.current %>)</div>
+
+    <div class="diff-block">
+        <h3>Заголовок</h3>
+        <pre><%- titleDiffHtml %></pre>
+    </div>
+
+    <div class="diff-block">
+        <h3>Контент</h3>
+        <pre><%- contentDiffHtml %></pre>
+    </div>
+
+    <p><a href="/user/home">Назад</a></p>
+</body>
+</html>
