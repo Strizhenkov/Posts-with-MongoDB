@@ -6,7 +6,7 @@ import unusedImports from 'eslint-plugin-unused-imports';
 
 export default [
     {
-        ignores: ['node_modules/**', 'artifacts/**', '.env', '.gitignore'],
+        ignores: ['node_modules/**/*', 'artifacts/**/*', '.env', '.gitignore'],
     },
 
     js.configs.recommended,

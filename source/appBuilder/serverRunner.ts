@@ -7,20 +7,20 @@ import {ViewConfigurator} from './steps/viewConfigurator.ts';
 import type {IServerStep} from './steps/iServerStep.ts';
 
 export class ServerRunner {
-    private _steps: IServerStep[];
+    private _steps: IServerStep[] = [];
 
-    constructor();
+    public addStep(step: IServerStep): ServerRunner {
+        this._steps.push(step);
+        return this;
+    }
 
-    constructor(steps: IServerStep[]);
-
-    constructor(steps?: IServerStep[]) {
-        this._steps = steps ?? [
-            new DatabaseConfigurator(),
-            new SessionConfigurator(),
-            new ViewConfigurator(),
-            new RouterConfigurator(),
-            new ServerStarter()
-        ];
+    public defaultSetUp(): ServerRunner {
+        this.addStep(new DatabaseConfigurator)
+            .addStep(new SessionConfigurator)
+            .addStep(new ViewConfigurator)
+            .addStep(new RouterConfigurator)
+            .addStep(new ServerStarter);
+        return this;
     }
 
     public async run(): Promise<void> {
