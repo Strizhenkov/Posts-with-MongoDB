@@ -13,8 +13,7 @@ export class PostUnit extends DBUnit<IPost> {
     }
 
     public async findRecentByAuthors(authorIds: string[], limit = 5): Promise<IPost[]> {
-        if (!authorIds.length)
-        {return [];}
+        if (!authorIds.length) {return [];}
         return await Post.find({author: {$in: authorIds}}).sort({_id: -1}).limit(limit);
     }
 

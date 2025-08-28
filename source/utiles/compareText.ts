@@ -10,9 +10,11 @@ function tokenize(input: string): string[] {
 
 function findAhead(arr: string[], start: number, target: string, maxAhead: number): number {
     const end = Math.min(arr.length, start + maxAhead);
-    for (let i = start; i < end; i++)
-    {if (arr[i] === target)
-    {return i;}}
+    for (let i = start; i < end; i++) {
+        if (arr[i] === target) {
+            return i;
+        }
+    }
     return -1;
 }
 
@@ -49,10 +51,14 @@ export function diffStringsHtml(a: string, b: string): string {
             const insertCost = closeB === -1 ? Infinity : closeB - j;
 
             if (deleteCost <= insertCost) {
-                while (i < closeA) {pushDel(A[i++]);}
+                while (i < closeA) {
+                    pushDel(A[i++]);
+                }
                 pushEql(A[i]); i++; j++;
             } else {
-                while (j < closeB) {pushIns(B[j++]);}
+                while (j < closeB) {
+                    pushIns(B[j++]);
+                }
                 pushEql(B[j]); i++; j++;
             }
             continue;

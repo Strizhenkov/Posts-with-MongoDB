@@ -39,6 +39,7 @@ export default [
             curly: ['error', 'all'],
             'no-trailing-spaces': 'error',
             'eol-last': ['error', 'never'],
+            'brace-style': ['error', '1tbs', {allowSingleLine: true}],
             'no-multiple-empty-lines': ['error', {max: 1, maxEOF: 1}],
             'comma-dangle': ['error', 'never'],
             'object-curly-spacing': ['error', 'never'],
