@@ -2,6 +2,7 @@ import MongoStore from 'connect-mongo';
 import dotenv from 'dotenv';
 import session from 'express-session';
 import type {IServerStep} from './iServerStep.ts';
+import type {Logger} from '../../utiles/logger.ts';
 import type {AppConfig} from '../config/appConfig.ts';
 import type {Express} from 'express';
 
@@ -16,7 +17,7 @@ declare module 'express-session' {
 export class SessionConfigurator implements IServerStep {
     constructor(private config: AppConfig) {}
 
-    public execute(app: Express, stepIndex: number): void {
+    public execute(app: Express, stepIndex: number, stepLogger: Logger): void {
         try {
             app.use(
                 session({
@@ -31,9 +32,9 @@ export class SessionConfigurator implements IServerStep {
                     }
                 })
             );
-            console.log(`${stepIndex + 1}) Session configured successfully.`);
+            stepLogger.log(`${stepIndex + 1}) Session configured successfully.`);
         } catch (err) {
-            console.error(`${stepIndex + 1}) Session configuration failed:`, err);
+            stepLogger.error(`${stepIndex + 1}) Session configuration failed:`, err);
             throw err;
         }
     }

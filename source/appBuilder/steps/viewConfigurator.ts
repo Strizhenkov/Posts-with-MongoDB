@@ -1,18 +1,19 @@
 import express from 'express';
 import type {IServerStep} from './iServerStep.ts';
+import type {Logger} from '../../utiles/logger.ts';
 import type {Express} from 'express';
 
 export class ViewConfigurator implements IServerStep  {
-    public execute(app: Express, stepIndex: number): void {
+    public execute(app: Express, stepIndex: number, stepLogger: Logger): void {
         try {
             app.use(express.json());
             app.use(express.urlencoded({extended: true}));
             app.set('views', './source/views');
             app.set('view engine', 'ejs');
             app.use(express.static('./source/static'));
-            console.log(`${stepIndex + 1}) View engine and static files configured successfully.`);
+            stepLogger.log(`${stepIndex + 1}) View engine and static files configured successfully.`);
         } catch (err) {
-            console.error(`${stepIndex + 1}) View configuration failed:`, err);
+            stepLogger.error(`${stepIndex + 1}) View configuration failed:`, err);
             throw err;
         }
     }

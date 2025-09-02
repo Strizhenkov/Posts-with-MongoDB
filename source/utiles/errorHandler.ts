@@ -1,6 +1,9 @@
+import type {Logger} from './logger';
 import type {Response} from 'express';
 
 export class ErrorHandler {
+    constructor(private logger : Logger) {}
+
     private readonly errorMessages: Record<number, string> = {
         400: 'Bad Request',
         401: 'Unauthorized',
@@ -14,7 +17,7 @@ export class ErrorHandler {
 
     public handle(res: Response, statusCode: number, context: string, details: string) {
         const short = this.errorMessages[statusCode] || 'Unknown Error';
-        console.error(`[Error ${statusCode} - ${short}] in ${context}: ${details}`);
+        this.logger.error(`[Error ${statusCode} - ${short}] in ${context}: ${details}`);
 
         res.status(statusCode).json({
             error: short,
