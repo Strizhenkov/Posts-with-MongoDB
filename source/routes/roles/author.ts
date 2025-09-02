@@ -3,7 +3,7 @@ import {PostDBUnit} from '../../model/dbUnits/postUnit.ts';
 import {UserDBUnit} from '../../model/dbUnits/userUnit.ts';
 import Post from '../../model/entities/post.ts';
 import {AuthorType} from '../../model/helpers/roles.ts';
-import {diffStringsHtml} from '../../utiles/compareText.ts';
+import {StringComparator} from '../../utiles/compareText.ts';
 import {SafeRunner} from '../../utiles/safeRunner.ts';
 import {AuthenticatedCheck, PostExistsCheck, UserExistsByIdCheck, UserRoleValidCheck, UserIsAuthorOfPostCheck, UserIsAuthorOfPostOrAdminCheck, VersionIndexValidCheck} from '../../utiles/validationSteps/validationConfig.ts';
 import {Validator} from '../../utiles/validator.ts';
@@ -157,8 +157,9 @@ router.get('/compare', async (req, res) => {
         const titleB = post.title[i2];
         const contentA = post.content[i1];
         const contentB = post.content[i2];
-        const titleDiffHtml = diffStringsHtml(titleA, titleB);
-        const contentDiffHtml = diffStringsHtml(contentA, contentB);
+        const comparator = new StringComparator();
+        const titleDiffHtml = comparator.execute(titleA, titleB);
+        const contentDiffHtml = comparator.execute(contentA, contentB);
 
         res.render('compareVersions', {
             postMeta: {id: post.id, current: post.version},
