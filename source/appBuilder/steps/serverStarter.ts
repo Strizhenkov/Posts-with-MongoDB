@@ -1,21 +1,31 @@
 import fs from 'fs';
+import http from 'http';
 import https from 'https';
 import dotenv from 'dotenv';
 import type {IServerStep} from './iServerStep.ts';
+import type {AppConfig} from '../config/appConfig.ts';
 import type {Express} from 'express';
 
 dotenv.config();
 
 export class ServerStarter implements IServerStep  {
+    constructor(private config: AppConfig) {}
+
     public execute(app: Express, stepIndex: number): void {
         try {
-            const PORT = process.env.Port || 3000;
-            https.createServer({
-                key: fs.readFileSync('./artifacts/cert/key.pem'),
-                cert: fs.readFileSync('./artifacts/cert/cert.pem')
-            }, app).listen(PORT, () => {
-                console.log(`${stepIndex + 1}) Server running at https://localhost:${process.env.PORT}.`);
-            });
+            const {port, https: httpsCfg} = this.config;
+            if (httpsCfg.enabled) {
+                const key = fs.readFileSync(httpsCfg.keyPath);
+                const cert = fs.readFileSync(httpsCfg.certPath);
+
+                https.createServer({key, cert}, app).listen(port, () => {
+                    console.log(`${stepIndex + 1}) Server running at https://localhost:${port}`);
+                });
+            } else {
+                http.createServer(app).listen(port, () => {
+                    console.log(`${stepIndex + 1}) Server running at http://localhost:${port}`);
+                });
+            }
         } catch (err) {
             console.error(`${stepIndex + 1}) Server startup failed:`, err);
             throw err;

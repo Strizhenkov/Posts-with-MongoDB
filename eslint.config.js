@@ -33,7 +33,7 @@ export default [
         },
 
         rules: {
-            indent: ['error', 4, {SwitchCase: 1}],
+            indent: ['error', 4],
             quotes: ['error', 'single', {avoidEscape: true}],
             semi: ['error', 'always'],
             curly: ['error', 'all'],

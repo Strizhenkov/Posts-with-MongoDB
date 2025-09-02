@@ -1,4 +1,5 @@
 import express from 'express';
+import {loadConfig} from './config/appConfig.ts';
 import {DatabaseConfigurator} from './steps/databaseConfigurator.ts';
 import {RouterConfigurator} from './steps/routerConfigurator.ts';
 import {ServerStarter} from './steps/serverStarter.ts';
@@ -8,6 +9,7 @@ import type {IServerStep} from './steps/iServerStep.ts';
 
 export class ServerRunner {
     private _steps: IServerStep[] = [];
+    private _config = loadConfig();
 
     public addStep(step: IServerStep): ServerRunner {
         this._steps.push(step);
@@ -16,10 +18,10 @@ export class ServerRunner {
 
     public defaultSetUp(): ServerRunner {
         this.addStep(new DatabaseConfigurator)
-            .addStep(new SessionConfigurator)
+            .addStep(new SessionConfigurator(this._config))
             .addStep(new ViewConfigurator)
             .addStep(new RouterConfigurator)
-            .addStep(new ServerStarter);
+            .addStep(new ServerStarter(this._config));
         return this;
     }
 

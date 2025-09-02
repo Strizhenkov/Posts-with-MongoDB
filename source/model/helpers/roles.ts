@@ -29,9 +29,12 @@ export class AdminType implements IUserType {
 
 export function createRoleFromString(role: string): IUserType {
     switch (role) {
-        case TypeRoles.adminRole: return new AdminType();
-        case TypeRoles.authorRole: return new AuthorType();
-        default: return new UserType();
+    case TypeRoles.adminRole:
+        return new AdminType();
+    case TypeRoles.authorRole:
+        return new AuthorType();
+    default:
+        return new UserType();
     }
 }
 
