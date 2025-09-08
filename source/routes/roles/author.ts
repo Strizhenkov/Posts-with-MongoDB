@@ -3,16 +3,16 @@ import {PostDBUnit} from '../../model/dbUnits/postUnit.ts';
 import {UserDBUnit} from '../../model/dbUnits/userUnit.ts';
 import Post from '../../model/entities/post.ts';
 import {AuthorType} from '../../model/helpers/roles.ts';
-import {StringComparator} from '../../utiles/compareText.ts';
 import {SafeRunner} from '../../utiles/safeRunner.ts';
 import {AuthenticatedCheck, PostExistsCheck, UserExistsByIdCheck, UserRoleValidCheck, UserIsAuthorOfPostCheck, UserIsAuthorOfPostOrAdminCheck, VersionIndexValidCheck} from '../../utiles/validationSteps/validationConfig.ts';
 import {Validator} from '../../utiles/validator.ts';
+import type {IHtmlComparator} from '../../comporator/iHtmlComparator.ts';
 import type {IPost} from '../../model/entities/post.ts';
 import type {IUser} from '../../model/entities/user.ts';
 import type {Logger} from '../../utiles/logger.ts';
 import type {Request, Response} from 'express';
 
-export default function createAuthorRoutes(logger: Logger) {
+export default function createAuthorRoutes(logger: Logger, comparator: IHtmlComparator) {
     const router = Router();
 
     router.get('/createPost', (req: Request, res: Response) => {
@@ -159,7 +159,6 @@ export default function createAuthorRoutes(logger: Logger) {
             const titleB = post.title[i2];
             const contentA = post.content[i1];
             const contentB = post.content[i2];
-            const comparator = new StringComparator();
             const titleDiffHtml = comparator.execute(titleA, titleB);
             const contentDiffHtml = comparator.execute(contentA, contentB);
 

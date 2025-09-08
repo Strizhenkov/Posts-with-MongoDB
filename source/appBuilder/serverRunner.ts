@@ -1,4 +1,5 @@
 import express from 'express';
+import {ComparatorAdapterFactory} from '../comporator/comparatorAdapterFactory.ts';
 import {ConsoleLoggerStrategy, Logger} from '../utiles/logger.ts';
 import {loadConfig} from './config/appConfig.ts';
 import {DatabaseConfigurator} from './steps/databaseConfigurator.ts';
@@ -13,6 +14,7 @@ export class ServerRunner {
     private _config = loadConfig();
     private _serverStartLogger = new Logger(new ConsoleLoggerStrategy());
     private _serverUseLogger = new Logger(new ConsoleLoggerStrategy());
+    private _comparatorAdapterFactory = new ComparatorAdapterFactory(this._config);
 
     public addStep(step: IServerStep): ServerRunner {
         this._steps.push(step);
@@ -23,7 +25,7 @@ export class ServerRunner {
         this.addStep(new DatabaseConfigurator)
             .addStep(new SessionConfigurator(this._config))
             .addStep(new ViewConfigurator)
-            .addStep(new RouterConfigurator(this._serverUseLogger))
+            .addStep(new RouterConfigurator(this._serverUseLogger, this._comparatorAdapterFactory.createComparator()))
             .addStep(new ServerStarter(this._config));
         return this;
     }

@@ -2,9 +2,31 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+export enum ComparatorType {
+    MyComparator = 'myComparator',
+    ImportedComparator ='importedComparator'
+}
+
+enum NodeStateEnv {
+    Development = 'development',
+    Production = 'production',
+    Test = 'test'
+}
+
+function parseNodeEnv(value?: string): NodeStateEnv {
+    switch (value) {
+    case NodeStateEnv.Production:
+        return NodeStateEnv.Production;
+    case NodeStateEnv.Test:
+        return NodeStateEnv.Test;
+    default:
+        return NodeStateEnv.Development;
+    }
+}
+
 export type AppConfig = {
     port: number;
-    nodeEnv: 'development' | 'production' | 'test';
+    nodeEnv: NodeStateEnv;
     https: {
         enabled: boolean;
         keyPath: string;
@@ -20,15 +42,23 @@ export type AppConfig = {
             maxAgeMs: number;
         };
     };
+    comparator: ComparatorType;
 };
 
+function envComparator(): ComparatorType {
+    const raw = (process.env.DIFF_COMPARATOR ?? 'myComparator');
+    return raw === 'myComparator' ? ComparatorType.MyComparator : ComparatorType.ImportedComparator;
+}
+
 function required(name: string, val?: string): string {
-    if (!val) {throw new Error(`Missing required env: ${name}`);}
+    if (!val) {
+        throw new Error(`Missing required env: ${name}`);
+    }
     return val;
 }
 
 export function loadConfig(): AppConfig {
-    const nodeEnv = (process.env.NODE_ENV ?? 'development') as AppConfig['nodeEnv'];
+    const nodeEnv = parseNodeEnv(process.env.NODE_ENV);
 
     const portStr = process.env.PORT;
     const port = Number(portStr);
@@ -52,10 +82,12 @@ export function loadConfig(): AppConfig {
             mongoUrl: required('MONGO_URI', process.env.MONGO_URI),
             cookie: {
                 httpOnly: true,
-                secure: nodeEnv === 'production',
+                secure: nodeEnv === NodeStateEnv.Production,
                 maxAgeMs: 1000 * 60 * 60
             }
-        }
+        },
+
+        comparator: envComparator()
     };
 
     return config;
